@@ -31,6 +31,7 @@ MAX_TOPICS = int(os.getenv("LR_MAX_TOPICS", 5))
 # Allocation rules the Judge applies (tender strategy guardrails, in percent of loads).
 MAX_SHARE = float(os.getenv("LR_MAX_SHARE", 60))  # no single carrier gets more than this
 MIN_SHARE = float(os.getenv("LR_MIN_SHARE", 10))  # every qualified carrier keeps at least this (backup capacity)
+GOOGLE_MAPS_API_KEY = os.getenv("GOOGLE_MAPS_API_KEY", "")  # optional: official Maps Embed API for the route map
 SYNTHETIC_CAP = float(os.getenv("LR_SYNTHETIC_CAP", 25))  # cap for providers backed only by unaudited data
 MIN_ACCEPTANCE = float(os.getenv("LR_MIN_ACCEPTANCE", 80))  # below this on the lane, carrier is backup only
 

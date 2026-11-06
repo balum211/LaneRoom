@@ -48,9 +48,9 @@ See [ARCHITECTURE.md](ARCHITECTURE.md) for the graph, the agent table and the al
 | Orchestration | LangGraph: parallel fan-out (Researcher + Quant, Cost + Resilience), conditional retry loop, interrupt for human review, checkpointer |
 | LLM | Any OpenAI-compatible model via LangChain (Nebius Llama-3.3-70B by default); deterministic offline agents when no key is set |
 | Retrieval | Reused from our Week 2 project FilingSight (via DealRoom): semantic chunks, Chroma (MiniLM ONNX) + BM25, Reciprocal Rank Fusion, local reranker, provider filters |
-| Data | J.B. Hunt, C.H. Robinson and Old Dominion FY2025 Form 10-K (SEC EDGAR) + **synthetic** profiles for four private providers (Armada, Edge Logistics, First Star, BlueGrace Logistics), 1,033 chunks with provider, page and Item metadata; a **synthetic** 80-row lane scorecard |
+| Data | J.B. Hunt, C.H. Robinson and Old Dominion FY2025 Form 10-K (SEC EDGAR) + **synthetic** profiles for four private providers (Armada, Edge Logistics, First Star, BlueGrace Logistics), 1,033 chunks with provider, page and Item metadata; a **synthetic** 152-row lane scorecard (8 lanes) |
 | Tools | MCP server (`laneroom-carriers`): `search_filings`, `get_page`, `list_companies`, `lane_scorecard`, `key_metrics`, `compute_change` |
-| UI | Streamlit 3D glass theme with a freight-orange accent: animated US route map with moving trucks, per-lane route card, pydeck arc map, carrier badges and roster, live agent timeline, allocation bar, debate view with verification badges, scorecard and financial cards, memo, evidence viewer, approve / revise / follow-up |
+| UI | Streamlit 3D glass theme with a freight-orange accent: animated US route map with moving trucks, per-lane route card, Google Maps driving route, pydeck arc map, carrier badges and roster, live agent timeline, allocation bar, debate view with verification badges, scorecard and financial cards, memo, evidence viewer, approve / revise / follow-up |
 | Quality | pytest suite (42 tests), evaluation script, GitHub Actions CI |
 
 ## Guardrails

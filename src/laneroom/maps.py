@@ -32,6 +32,10 @@ CITIES = {  # lon, lat
 LANE_ROUTES = {
     "DAL-ATL": [("Dallas", "Atlanta")],
     "CHI-LAX": [("Chicago", "Los Angeles")],
+    "DAL-HOU": [("Dallas", "Houston")],
+    "ATL-MIA": [("Atlanta", "Miami")],
+    "LAX-PHX": [("Los Angeles", "Phoenix")],
+    "CHI-NWK": [("Chicago", "Newark")],
     "LTL-NAT": [("Memphis", "Chicago"), ("Memphis", "Dallas"), ("Memphis", "Atlanta"), ("Columbus", "Newark"),
                 ("Columbus", "Chicago"), ("Kansas City", "Denver"), ("Denver", "Seattle"), ("Dallas", "Houston"),
                 ("Atlanta", "Charlotte"), ("Atlanta", "Miami"), ("Memphis", "Columbus"), ("Kansas City", "Memphis")],
@@ -206,3 +210,40 @@ def lane_distance(lane_id: str) -> str:
     if len(routes) == 1:
         return f"≈ {miles(*routes[0]):,} road miles (est.)"
     return f"{len(routes)} network legs · {len({c for r in routes for c in r})} metros"
+
+
+# ---------------------------------------------------------------- Google Maps
+# Real road geography for the route card. Point-to-point lanes show the driving route; network lanes show a
+# representative trunk route through their hubs. With GOOGLE_MAPS_API_KEY set the official Maps Embed API is
+# used; without one, the keyless classic embed (no account needed, fine for a demo).
+STATES = {"Seattle": "WA", "Los Angeles": "CA", "Phoenix": "AZ", "Denver": "CO", "Dallas": "TX", "Houston": "TX",
+          "Kansas City": "MO", "Chicago": "IL", "Memphis": "TN", "Atlanta": "GA", "Columbus": "OH",
+          "Charlotte": "NC", "Newark": "NJ", "Miami": "FL"}
+GOOGLE_ROUTES = {
+    "LTL-NAT": ["Kansas City", "Memphis", "Columbus", "Newark"],
+    "PEAK-NAT": ["Los Angeles", "Phoenix", "Dallas", "Atlanta", "Newark"],
+}
+
+
+def google_stops(lane_id: str) -> list[str]:
+    stops = GOOGLE_ROUTES.get(lane_id) or list(LANE_ROUTES.get(lane_id, [()])[0])
+    return [f"{c}, {STATES.get(c, '')}".strip(", ") for c in stops]
+
+
+def google_maps_url(lane_id: str, api_key: str = "", embed: bool = True) -> str:
+    """Google Maps directions URL for a lane: an iframe src (embed=True) or a link that opens Google Maps."""
+    from urllib.parse import quote_plus
+
+    stops = google_stops(lane_id)
+    if not stops:
+        return ""
+    if not embed:
+        return "https://www.google.com/maps/dir/" + "/".join(quote_plus(s) for s in stops)
+    if api_key:
+        url = (f"https://www.google.com/maps/embed/v1/directions?key={quote_plus(api_key)}"
+               f"&origin={quote_plus(stops[0])}&destination={quote_plus(stops[-1])}&mode=driving")
+        if len(stops) > 2:
+            url += "&waypoints=" + "|".join(quote_plus(s) for s in stops[1:-1])
+        return url
+    daddr = "+to:".join(quote_plus(s) for s in stops[1:])
+    return f"https://maps.google.com/maps?saddr={quote_plus(stops[0])}&daddr={daddr}&output=embed"

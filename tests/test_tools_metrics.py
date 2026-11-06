@@ -40,13 +40,28 @@ def test_fmt_value():
 
 
 def test_scorecard_lanes_and_summary():
-    assert set(scorecard.lanes()) == {"DAL-ATL", "LTL-NAT", "PEAK-NAT", "CHI-LAX"}
+    assert set(scorecard.lanes()) == {"DAL-ATL", "LTL-NAT", "PEAK-NAT", "CHI-LAX", "DAL-HOU", "ATL-MIA", "LAX-PHX",
+                                      "CHI-NWK"}
     assert scorecard.detect_lane("LTL national contract") == "LTL-NAT"
     assert scorecard.detect_lane("Peak season surge capacity") == "PEAK-NAT"
     s = scorecard.summary("DAL-ATL", "J.B. Hunt")
     assert s["tenders_offered"] == 10400 and 90 < s["acceptance_pct"] < 96 and len(s["rows"]) == 4
     rows = lane_scorecard("DAL-ATL", "jbht")
     assert len(rows) == 4 and all("accepted" in r["text"] for r in rows)
+
+
+def test_lane_detection_uses_city_pair_before_mode():
+    # "dry van" used to send every Dallas request to Dallas→Atlanta
+    assert scorecard.lane_match("Dallas→Houston dry van: allocate 500 weekly loads") == ("DAL-HOU", "")
+    assert scorecard.detect_lane("Houston to Dallas, 200 loads") == "DAL-HOU"
+    assert scorecard.detect_lane("Dallas→Atlanta dry van: allocate 500 weekly loads") == "DAL-ATL"
+    assert scorecard.detect_lane("Chicago to Los Angeles intermodal") == "CHI-LAX"
+    assert scorecard.detect_lane("LA to Phoenix") == "LAX-PHX"
+    assert scorecard.detect_lane("Atlantic holiday surge") == "PEAK-NAT"  # "atl" inside a word is not Atlanta
+    # A pair that is not on file is never swapped silently
+    lane, note = scorecard.lane_match("Seattle to Denver dry van")
+    assert lane in scorecard.lanes() and "Seattle → Denver" in note
+    assert "Detroit" in scorecard.lane_match("Detroit dry van")[1]
 
 
 def test_allocation_respects_caps_and_floor():

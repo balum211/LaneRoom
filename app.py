@@ -6,6 +6,7 @@ import time
 from pathlib import Path
 
 import streamlit as st
+import streamlit.components.v1 as components
 
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT / "src"))
@@ -150,6 +151,21 @@ def run_stream(gen, box) -> None:
             box.update(label=f"{icon} {NODE_LABELS.get(t['node'], t['node'])} done")
 
 
+def google_route(plan: dict) -> None:
+    """The lane on a real US road map (Google Maps), under the schematic carrier-share route card."""
+    from laneroom import maps
+
+    lane_id = plan.get("lane_id", "")
+    src = maps.google_maps_url(lane_id, config.GOOGLE_MAPS_API_KEY)
+    if not src:
+        return
+    stops = " → ".join(maps.google_stops(lane_id))
+    st.markdown(ui.section("map-pin", f"Google Maps · {stops}"), unsafe_allow_html=True)
+    components.iframe(src, height=420)
+    st.caption(f"Driving route from Google Maps{' (representative trunk route through the network hubs)' if lane_id in maps.GOOGLE_ROUTES else ''}. "
+               f"[Open in Google Maps]({maps.google_maps_url(lane_id, embed=False)})")
+
+
 # ---------------------------------------------------------------- main
 st.markdown(ui.hero(), unsafe_allow_html=True)
 tab_room, tab_eval, tab_how, tab_course = st.tabs(["Committee", "Evaluation", "How it works", "Course map"])
@@ -192,8 +208,11 @@ with tab_room:
         elif state.get("memo"):
             for note in state.get("guard", {}).get("notes", []):
                 st.info(note, icon="🛡️")
+            if state.get("plan", {}).get("lane_note"):
+                st.warning(state["plan"]["lane_note"], icon="🗺️")
             st.markdown(ui.verdict(state.get("judge", {})), unsafe_allow_html=True)
             st.markdown(ui.lane_card(state.get("judge", {}), state.get("plan", {})), unsafe_allow_html=True)
+            google_route(state.get("plan", {}))
 
             t_debate, t_metrics, t_map, t_memo, t_evidence, t_trace = st.tabs(
                 ["Debate", "Scorecard & metrics", "Network map", "Memo", "Evidence", "Agent log"])

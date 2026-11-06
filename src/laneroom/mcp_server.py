@@ -53,7 +53,7 @@ def lane_scorecard(lane: str, carrier: str | None = None) -> list[dict]:
     """Rows of the SYNTHETIC shipper scorecard: tenders offered/accepted, on-time %, rate per mile, claims %.
 
     Args:
-        lane: DAL-ATL, LTL-NAT, PEAK-NAT, CHI-LAX, or a description such as "Dallas to Atlanta dry van".
+        lane: DAL-ATL, DAL-HOU, ATL-MIA, LAX-PHX, CHI-NWK, CHI-LAX, LTL-NAT, PEAK-NAT, or a description such as "Dallas to Atlanta dry van".
         carrier: optional provider filter.
     """
     return [{k: e[k] for k in ("row", "company", "item_title", "text")} for e in tools.lane_scorecard(lane, carrier)]

@@ -112,7 +112,7 @@ def get_chunk(chunk_id: str) -> dict | None:
 
 
 def lane_scorecard(lane: str, carrier: str | None = None) -> list[dict]:
-    """Rows of the SYNTHETIC shipper scorecard for a lane id (DAL-ATL, LTL-NAT, PEAK-NAT, CHI-LAX)
+    """Rows of the SYNTHETIC shipper scorecard for a lane id (DAL-ATL, DAL-HOU, ATL-MIA, LAX-PHX, CHI-NWK, CHI-LAX, LTL-NAT, PEAK-NAT)
     or a free-text lane description, optionally for one carrier."""
     from . import scorecard
 

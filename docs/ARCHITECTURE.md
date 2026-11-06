@@ -61,7 +61,9 @@ SEC EDGAR, printed from EDGAR HTML to PDF so every passage keeps a page number. 
 and BlueGrace Logistics are privately held and file nothing with the SEC**: each document is a **synthetic**, clearly
 labelled, illustrative provider profile written for the demo, not data from the real company.
 The **lane scorecard** (tenders offered/accepted, on-time %, rate per mile, claims % per lane, carrier and quarter)
-is also **synthetic**, because 10-Ks never report shipper-level tender data.
+is also **synthetic**, because 10-Ks never report shipper-level tender data. It covers eight lanes: Dallas→Atlanta, Dallas→Houston, Atlanta→Miami, Los Angeles→Phoenix, Chicago→Newark, Chicago→Los Angeles intermodal, a national LTL contract and peak-season surge. The
+Planner picks the lane from the city pair named in the request first, then from the kind of lane (peak, LTL,
+intermodal, dry van); a city pair that is not on file produces a visible note naming the lane used instead.
 
 **Memory.** Short-term: the LangGraph checkpointer keeps each thread so the reviewer can resume, revise or follow
 up. Long-term: a per-shipper store (`data/memory/store.json`) keeps the procurement mandate (cost-first, balanced,
@@ -74,6 +76,8 @@ and CI never depend on an API. Any LLM failure falls back to the offline agent f
 **Logistics UI.** The hero is a dot-matrix US route map with trucks (and a train on the intermodal lane) moving
 along every scorecard lane. After a run, a route card draws the awarded lane with one coloured route per carrier,
 whose width and truck count follow its share, next to loads per week. A "Network map" tab shows the same arcs on
-real geography (pydeck on a CARTO basemap). Carriers appear as original monogram badges with a mode icon, not their
+real geography (pydeck on a CARTO basemap), and under the route card a Google Maps iframe shows the actual
+driving route (the official Maps Embed API when `GOOGLE_MAPS_API_KEY` is set, Google's keyless embed otherwise;
+network lanes show a representative trunk route through their hubs). Carriers appear as original monogram badges with a mode icon, not their
 real logos. Carrier colours use a categorical palette validated for colour-blind separation and contrast on the
 dark surfaces (`src/laneroom/maps.py`, `src/laneroom/ui.py`).

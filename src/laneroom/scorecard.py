@@ -16,12 +16,28 @@ from functools import lru_cache
 
 from . import config
 
-# How a request names a lane. Checked in order; the first match wins.
+# Point-to-point lanes: lane_id -> (origin, destination). A request naming both cities picks the lane.
+LANE_CITIES = {
+    "DAL-ATL": ("Dallas", "Atlanta"), "CHI-LAX": ("Chicago", "Los Angeles"), "DAL-HOU": ("Dallas", "Houston"),
+    "ATL-MIA": ("Atlanta", "Miami"), "LAX-PHX": ("Los Angeles", "Phoenix"), "CHI-NWK": ("Chicago", "Newark"),
+}
+# City names a request may use (a city outside this list cannot be matched to a lane, see lane_match).
+CITY_PATTERNS = {
+    "Dallas": r"dallas|dfw|\bdal\b", "Atlanta": r"atlanta|\batl\b", "Houston": r"houston|\bhou\b",
+    "Chicago": r"chicago|\bchi\b", "Los Angeles": r"los angeles|\bla\b|\blax\b", "Miami": r"miami|\bmia\b",
+    "Phoenix": r"phoenix|\bphx\b", "Newark": r"newark|new jersey|\bnwk\b|\bewr\b", "Memphis": r"memphis",
+    "Seattle": r"seattle", "Denver": r"denver", "Kansas City": r"kansas city", "Columbus": r"columbus",
+    "Charlotte": r"charlotte", "New York": r"new york|\bnyc\b", "San Antonio": r"san antonio", "Austin": r"\baustin\b",
+    "Nashville": r"nashville", "Detroit": r"detroit", "St. Louis": r"st\.? louis", "Laredo": r"laredo",
+    "Salt Lake City": r"salt lake", "Portland": r"portland", "Indianapolis": r"indianapolis", "Jacksonville": r"jacksonville",
+}
+_CITY_RE = {c: re.compile(p, re.I) for c, p in CITY_PATTERNS.items()}
+# Lanes named by kind rather than by cities. Checked in order after city pairs; the first match wins.
 LANE_PATTERNS = (
     ("PEAK-NAT", re.compile(r"\b(peak|surge|holiday|q4 capacity|seasonal)\b", re.I)),
     ("LTL-NAT", re.compile(r"\b(ltl|less[- ]than[- ]truckload)\b", re.I)),
-    ("CHI-LAX", re.compile(r"\b(chicago|los angeles|\bla\b|intermodal|chi\W+lax)\b", re.I)),
-    ("DAL-ATL", re.compile(r"\b(dallas|atlanta|dal\W+atl|dry van)\b", re.I)),
+    ("CHI-LAX", re.compile(r"\b(intermodal|chi\W+lax)\b", re.I)),
+    ("DAL-ATL", re.compile(r"\b(dal\W+atl|dry van)\b", re.I)),
 )
 DEFAULT_LANE = "DAL-ATL"
 SOURCE_LABEL = "Synthetic shipper scorecard"
@@ -50,11 +66,48 @@ def lanes() -> dict[str, dict]:
     return out
 
 
+def cities_in(question: str) -> list[str]:
+    """Known cities named in the request, in the order they appear."""
+    hits = [(m.start(), c) for c, rx in _CITY_RE.items() if (m := rx.search(question or ""))]
+    return [c for _, c in sorted(hits)]
+
+
+def lane_match(question: str) -> tuple[str, str]:
+    """(lane_id, note). The note is empty when the request clearly names a lane on file.
+
+    Order: an exact city pair, then a kind of lane (peak, LTL, intermodal, dry van), then a lane sharing one
+    named city, then the default. Whenever the request names a city pair that is not on file, the note says
+    which lane the committee used instead, so the answer never silently swaps the lane.
+    """
+    cities = cities_in(question)
+    pair = set(cities[:2])
+    for lane_id, ends in LANE_CITIES.items():
+        if len(pair) == 2 and pair == set(ends):
+            return lane_id, ""
+    kind = next((lane_id for lane_id, pat in LANE_PATTERNS if pat.search(question or "")), None)
+    if len(pair) == 2:
+        a, b = cities[:2]
+        near = next((lid for lid, ends in LANE_CITIES.items() if a == ends[0]), None)             or next((lid for lid, ends in LANE_CITIES.items() if set(ends) & pair), None)
+        lane_id = kind if kind in ("PEAK-NAT", "LTL-NAT") else (near or kind or DEFAULT_LANE)
+        return lane_id, (f"The synthetic scorecard has no tender history for {a} → {b}, so the committee used the "
+                         f"closest lane on file: {lanes()[lane_id]['lane']}. Lanes on file: {lane_list()}.")
+    if cities:
+        on_file = next((lid for lid, ends in LANE_CITIES.items() if cities[0] in ends), None)
+        if on_file and kind not in ("PEAK-NAT", "LTL-NAT"):
+            return (kind if kind and cities[0] in LANE_CITIES.get(kind, ()) else on_file), ""
+        if not on_file:
+            lane_id = kind or DEFAULT_LANE
+            return lane_id, (f"The synthetic scorecard has no lane for {cities[0]}, so the committee used "
+                             f"{lanes()[lane_id]['lane']}. Lanes on file: {lane_list()}.")
+    return kind or DEFAULT_LANE, ""
+
+
 def detect_lane(question: str) -> str:
-    for lane_id, pat in LANE_PATTERNS:
-        if pat.search(question or ""):
-            return lane_id
-    return DEFAULT_LANE
+    return lane_match(question)[0]
+
+
+def lane_list() -> str:
+    return "; ".join(v["lane"] for v in lanes().values())
 
 
 def lane_rows(lane_id: str, carrier: str | None = None) -> list[dict]:

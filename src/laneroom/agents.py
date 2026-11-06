@@ -127,7 +127,7 @@ def _offline_plan(question: str, companies: list[str]) -> list[dict]:
 
 def plan_lane(question: str) -> dict:
     """Which lane, which providers and how many loads the request is about."""
-    lane_id = scorecard.detect_lane(question)
+    lane_id, lane_note = scorecard.lane_match(question)
     lane = scorecard.lanes()[lane_id]
     named = companies_in(question)
     companies = named or list(lane["carriers"])
@@ -140,7 +140,7 @@ def plan_lane(question: str) -> dict:
     off_lane = [c for c in companies if c not in lane["carriers"]]
     return {"lane_id": lane_id, "lane": lane["lane"], "mode": lane["mode"], "companies": companies,
             "lane_carriers": list(lane["carriers"]), "off_lane": off_lane, "loads": loads,
-            "is_comparison": len(companies) > 1}
+            "is_comparison": len(companies) > 1, "lane_note": lane_note}
 
 
 def planner(state: dict) -> dict:

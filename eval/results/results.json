@@ -1,6 +1,6 @@
 {
   "agents": "offline (no API key)",
-  "generated": "2026-11-06 12:49",
+  "generated": "2026-11-06 14:36",
   "retrieval": {
     "questions": 25,
     "hit_at_5": 1.0,
@@ -442,7 +442,7 @@
     "runs": [
       {
         "question": "Dallas\u2192Atlanta dry van: allocate 500 weekly loads",
-        "seconds": 32.02,
+        "seconds": 31.2,
         "llm_calls": 0,
         "tokens": 0,
         "cost_usd": 0.0,
@@ -459,7 +459,7 @@
       },
       {
         "question": "LTL national contract: ODFL vs CHRW",
-        "seconds": 16.52,
+        "seconds": 17.33,
         "llm_calls": 0,
         "tokens": 0,
         "cost_usd": 0.0,
@@ -476,7 +476,7 @@
       },
       {
         "question": "Peak season surge capacity: who should get the extra Q4 loads?",
-        "seconds": 40.89,
+        "seconds": 41.63,
         "llm_calls": 0,
         "tokens": 0,
         "cost_usd": 0.0,
@@ -493,7 +493,7 @@
       },
       {
         "question": "Chicago to Los Angeles intermodal: allocate 300 weekly loads",
-        "seconds": 25.54,
+        "seconds": 25.22,
         "llm_calls": 0,
         "tokens": 0,
         "cost_usd": 0.0,
@@ -510,7 +510,7 @@
       },
       {
         "question": "Should Armada keep a share of the Dallas to Atlanta lane next year?",
-        "seconds": 32.49,
+        "seconds": 32.59,
         "llm_calls": 0,
         "tokens": 0,
         "cost_usd": 0.0,
@@ -527,7 +527,7 @@
       },
       {
         "question": "LTL national contract: compare Old Dominion, C.H. Robinson and Armada on service and cost",
-        "seconds": 23.37,
+        "seconds": 22.99,
         "llm_calls": 0,
         "tokens": 0,
         "cost_usd": 0.0,
@@ -544,7 +544,7 @@
       },
       {
         "question": "Dallas to Atlanta: should Edge Logistics or BlueGrace Logistics take more of the 500 weekly loads?",
-        "seconds": 33.37,
+        "seconds": 31.85,
         "llm_calls": 0,
         "tokens": 0,
         "cost_usd": 0.0,
@@ -561,7 +561,7 @@
       },
       {
         "question": "Chicago to Los Angeles intermodal: J.B. Hunt vs First Star vs Edge Logistics",
-        "seconds": 17.59,
+        "seconds": 17.72,
         "llm_calls": 0,
         "tokens": 0,
         "cost_usd": 0.0,
@@ -582,8 +582,8 @@
     "balanced_rate": 1.0,
     "allocation_valid_rate": 1.0,
     "cites_both_rate": 1.0,
-    "median_seconds": 28.8,
-    "p95_seconds": 40.9,
+    "median_seconds": 28.2,
+    "p95_seconds": 41.6,
     "avg_tokens": 0,
     "avg_cost_usd": 0.0,
     "avg_cited_sources": 9.8
@@ -621,7 +621,7 @@
     "runs": [
       {
         "question": "Dallas\u2192Atlanta dry van: allocate 500 weekly loads",
-        "seconds": 11.2,
+        "seconds": 20.0,
         "route": "refused",
         "cited_sources": 5,
         "allocation": false,
@@ -629,7 +629,7 @@
       },
       {
         "question": "LTL national contract: ODFL vs CHRW",
-        "seconds": 3.67,
+        "seconds": 5.4,
         "route": "refused",
         "cited_sources": 4,
         "allocation": false,
@@ -637,7 +637,7 @@
       },
       {
         "question": "Peak season surge capacity: who should get the extra Q4 loads?",
-        "seconds": 10.22,
+        "seconds": 11.38,
         "route": "refused",
         "cited_sources": 5,
         "allocation": false,
@@ -645,7 +645,7 @@
       },
       {
         "question": "Chicago to Los Angeles intermodal: allocate 300 weekly loads",
-        "seconds": 10.89,
+        "seconds": 11.43,
         "route": "refused",
         "cited_sources": 5,
         "allocation": false,
@@ -653,7 +653,7 @@
       },
       {
         "question": "Should Armada keep a share of the Dallas to Atlanta lane next year?",
-        "seconds": 1.5,
+        "seconds": 1.6,
         "route": "refused",
         "cited_sources": 4,
         "allocation": false,
@@ -661,7 +661,7 @@
       },
       {
         "question": "LTL national contract: compare Old Dominion, C.H. Robinson and Armada on service and cost",
-        "seconds": 5.23,
+        "seconds": 5.13,
         "route": "refused",
         "cited_sources": 5,
         "allocation": false,
@@ -669,7 +669,7 @@
       },
       {
         "question": "Dallas to Atlanta: should Edge Logistics or BlueGrace Logistics take more of the 500 weekly loads?",
-        "seconds": 2.1,
+        "seconds": 2.46,
         "route": "refused",
         "cited_sources": 5,
         "allocation": false,
@@ -677,7 +677,7 @@
       },
       {
         "question": "Chicago to Los Angeles intermodal: J.B. Hunt vs First Star vs Edge Logistics",
-        "seconds": 4.31,
+        "seconds": 3.74,
         "route": "refused",
         "cited_sources": 5,
         "allocation": false,
@@ -687,6 +687,6 @@
     "allocation_rate": 0.0,
     "both_lenses_rate": 0.0,
     "avg_cited_sources": 4.8,
-    "median_seconds": 4.8
+    "median_seconds": 5.3
   }
 }

@@ -18,6 +18,10 @@ LANES = {
     "LTL-NAT": ("National LTL contract", "LTL"),
     "PEAK-NAT": ("Peak season surge (national)", "Truckload and LTL surge"),
     "CHI-LAX": ("Chicago, IL to Los Angeles, CA", "Intermodal and truckload"),
+    "DAL-HOU": ("Dallas, TX to Houston, TX", "Dry van truckload (short haul)"),
+    "ATL-MIA": ("Atlanta, GA to Miami, FL", "Dry van truckload"),
+    "LAX-PHX": ("Los Angeles, CA to Phoenix, AZ", "Dry van truckload"),
+    "CHI-NWK": ("Chicago, IL to Newark, NJ", "Truckload and intermodal"),
 }
 
 # lane -> carrier -> (tenders offered per quarter, acceptance %, on-time %, rate per mile, claims %),
@@ -50,6 +54,33 @@ BASE = {
         "C.H. Robinson": (1700, 90.0, 91.5, 2.06, 0.29),
         "Edge Logistics": (900, 88.0, 90.8, 2.01, 0.33),
         "First Star": (600, 87.5, 91.6, 2.10, 0.27),
+    },
+    # Short haul: rates per mile run higher because fixed loading time is spread over fewer miles.
+    "DAL-HOU": {
+        "J.B. Hunt": (2400, 93.0, 96.0, 3.05, 0.13),
+        "C.H. Robinson": (2100, 88.5, 92.4, 2.88, 0.30),
+        "Armada": (1500, 93.5, 96.2, 2.96, 0.19),
+        "Edge Logistics": (1300, 87.5, 91.8, 2.84, 0.33),
+        "First Star": (800, 90.0, 93.0, 2.92, 0.26),
+    },
+    "ATL-MIA": {
+        "J.B. Hunt": (1800, 92.5, 95.6, 2.48, 0.15),
+        "C.H. Robinson": (1700, 89.5, 92.1, 2.31, 0.32),
+        "Armada": (1100, 91.0, 94.8, 2.40, 0.22),
+        "BlueGrace Logistics": (800, 88.0, 92.4, 2.34, 0.31),
+    },
+    "LAX-PHX": {
+        "J.B. Hunt": (1900, 93.5, 95.8, 2.62, 0.14),
+        "C.H. Robinson": (1800, 90.0, 92.5, 2.44, 0.30),
+        "Edge Logistics": (1000, 88.0, 91.2, 2.39, 0.35),
+        "First Star": (500, 87.0, 91.4, 2.51, 0.28),
+    },
+    "CHI-NWK": {
+        "J.B. Hunt": (2300, 94.5, 95.2, 2.12, 0.13),
+        "C.H. Robinson": (2000, 89.0, 91.9, 2.27, 0.31),
+        "Old Dominion": (900, 98.5, 98.8, 4.95, 0.09),
+        "Edge Logistics": (1100, 88.5, 91.0, 2.22, 0.34),
+        "BlueGrace Logistics": (700, 89.0, 92.2, 2.30, 0.32),
     },
 }
 # Seasonality: peak season (Q4) squeezes asset fleets harder than brokers' flexible networks.

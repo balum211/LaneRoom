@@ -24,7 +24,7 @@ app, memo and README label it as such. The Judge caps any provider backed only b
 5-page layout and are illustrative only: every statement and figure is made up for the demo and is not information
 from, or about, the real companies with those names.
 
-The **lane scorecard** (`data/scorecard/shipper_scorecard_synthetic.csv`, made by `scripts/make_scorecard.py`) is
+The **lane scorecard** (`data/scorecard/shipper_scorecard_synthetic.csv`, made by `scripts/make_scorecard.py`, 152 rows over 8 lanes) is
 also synthetic: public filings never report a shipper's tender acceptance, on-time %, rate per mile or claims % by
 carrier.
 

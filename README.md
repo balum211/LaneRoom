@@ -39,6 +39,8 @@ profiles: **Armada**, **Edge Logistics**, **First Star** and **BlueGrace Logisti
 |---|---|---|
 | ![route map](docs/screenshots/12_route_map.png) | ![network map](docs/screenshots/13_network_map.png) | ![roster](docs/screenshots/11_roster.png) |
 
+![Dallas to Houston on Google Maps under the route card](docs/screenshots/14_google_map.png)
+
 | Verifier catches a planted claim | Lane scorecard and 10-K financials | Cited tender memo |
 |---|---|---|
 | ![debate](docs/screenshots/03_debate.png) | ![metrics](docs/screenshots/04_metrics.png) | ![memo](docs/screenshots/05_memo.png) |
@@ -62,7 +64,7 @@ profiles: **Armada**, **Edge Logistics**, **First Star** and **BlueGrace Logisti
 | Decision | A Judge scores each carrier from lane KPIs, financial health and the verified debate, weighted by the shipper's mandate, then allocates 100% of loads under tender rules (≤ 60% per carrier, ≥ 10% backup share, 80% acceptance floor, 25% cap on synthetic-only evidence) |
 | Human in the loop | LangGraph `interrupt()` pauses before anything is awarded: approve, request changes, or ask a follow-up |
 | Memory | Thread memory in the LangGraph checkpointer; long-term shipper memory (cost-first / balanced / service-first mandate, preferred KPIs, incumbent carrier, past awards) that changes the Judge's weighting |
-| Logistics UI | Animated US route map with moving trucks (and a train on the intermodal lane), a per-lane route card where each carrier's route width follows its share, a pydeck arc map on real geography, carrier badges and a carrier roster |
+| Logistics UI | Animated US route map with moving trucks (and a train on the intermodal lane), a per-lane route card where each carrier's route width follows its share, a **Google Maps** driving route for the lane (official Embed API with `GOOGLE_MAPS_API_KEY`, keyless embed otherwise), a pydeck arc map on real geography, carrier badges and a carrier roster |
 | Guardrails | Prompt-injection, scope and unknown-carrier checks on input, injection stripping on retrieved text, no stock advice in output, synthetic data labelled everywhere, disclaimer always added |
 
 ```mermaid
@@ -95,7 +97,11 @@ Demo script: [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md) · Course topics covered
 | **Dallas→Atlanta dry van: allocate 500 weekly loads** | DAL-ATL · J.B. Hunt, C.H. Robinson, Armada, Edge Logistics, BlueGrace Logistics | J.B. Hunt 45% (225 loads) · C.H. Robinson 20% · Armada 15% · BlueGrace Logistics 10% · Edge Logistics 10% |
 | **LTL national contract: ODFL vs CHRW** | LTL-NAT · Old Dominion, C.H. Robinson, Armada, BlueGrace Logistics, First Star | Old Dominion 60% · C.H. Robinson 40% (the two named carriers) |
 | **Peak season surge capacity** | PEAK-NAT · six carriers | J.B. Hunt 35% · Old Dominion 30% · C.H. Robinson 15% · Edge Logistics 10% · Armada 10% |
+| *Typed:* **Dallas→Houston dry van: allocate 500 weekly loads** | DAL-HOU · J.B. Hunt, C.H. Robinson, Armada, Edge Logistics, First Star | J.B. Hunt 40% · Armada 25% · C.H. Robinson 15% · Edge Logistics 10% · First Star 10% |
 | **Chicago→LA intermodal: 300 weekly loads** | CHI-LAX · J.B. Hunt, C.H. Robinson, Edge Logistics, First Star | J.B. Hunt 60% · C.H. Robinson 15% · Edge Logistics 15% · First Star 10% |
+
+The scorecard covers eight lanes: Dallas→Atlanta, Dallas→Houston, Atlanta→Miami, Los Angeles→Phoenix, Chicago→Newark, Chicago→Los Angeles intermodal, a national LTL contract and peak-season surge. The Planner matches the two cities in a typed request to a lane; if a
+city pair is not on file, the app says which lane it used instead of switching silently.
 
 Switch the mandate and the award moves: for peak season, **cost-first** gives Old Dominion 15%, while
 **service-first** gives it 40%. These awards come from synthetic scorecard data and illustrate the

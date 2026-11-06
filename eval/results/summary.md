@@ -1,6 +1,6 @@
 # LaneRoom evaluation
 
-Agents: **offline (no API key)** · generated 2026-11-06 12:49
+Agents: **offline (no API key)** · generated 2026-11-06 14:36
 
 > Data note: carrier financials come from the public FY2025 10-Ks. The lane scorecard (tender acceptance, on-time %, rate per mile, claims %) and the private-carrier profiles (Armada, Edge Logistics, First Star, BlueGrace Logistics) are **synthetic** demo data, not real company data.
 
@@ -18,7 +18,7 @@ Agents: **offline (no API key)** · generated 2026-11-06 12:49
 | Memo cites both 10-K pages and scorecard rows | **100%** | 100% |
 | Balanced debate (≥ 3 verified points per advocate) | **100%** | 100% |
 | Guardrail decisions correct | **8/8** | all |
-| Median time per memo | **28.8 s** (p95 40.9 s) | < 180 s |
+| Median time per memo | **28.2 s** (p95 41.6 s) | < 180 s |
 | LLM tokens per memo | **0** | tracked |
 | Estimated cost per memo | **$0.0000** | < $0.05 |
 
@@ -32,20 +32,20 @@ Same prompts for both. Plain RAG returns one answer; LaneRoom plans, debates, ve
 | Weighs both cost and service evidence | 0% | 100% |
 | Distinct sources cited per answer | 4.8 | 9.8 |
 | Every claim checked against its source | no | yes (100% supported) |
-| Median seconds | 4.8 | 28.8 |
+| Median seconds | 5.3 | 28.2 |
 
 ## Committee runs
 
 | Request | Award | Final claims verified | Verifier retries | Re-searches | Tokens | Seconds |
 |---|---|---|---|---|---|---|
-| Dallas→Atlanta dry van: allocate 500 weekly loads | Award Dallas, TX to Atlanta, GA of 500 weekly loads: J.B. Hunt 45% · C.H. Robinson 20% · Armada 15% · BlueGrace Logistics 10% · Edge Logistics 10% (balanced mandate). | 11/11 | 1 | 0 | 0 | 32.02 |
-| LTL national contract: ODFL vs CHRW | Award National LTL contract: Old Dominion 60% · C.H. Robinson 40% (balanced mandate). | 11/11 | 1 | 0 | 0 | 16.52 |
-| Peak season surge capacity: who should get the extra Q4 loads? | Award Peak season surge (national): J.B. Hunt 35% · Old Dominion 30% · C.H. Robinson 15% · Edge Logistics 10% · Armada 10% (balanced mandate). | 11/11 | 1 | 0 | 0 | 40.89 |
-| Chicago to Los Angeles intermodal: allocate 300 weekly loads | Award Chicago, IL to Los Angeles, CA of 300 weekly loads: J.B. Hunt 60% · C.H. Robinson 15% · Edge Logistics 15% · First Star 10% (balanced mandate). | 11/11 | 1 | 0 | 0 | 25.54 |
-| Should Armada keep a share of the Dallas to Atlanta lane next year? | Award Dallas, TX to Atlanta, GA: J.B. Hunt 45% · C.H. Robinson 20% · Armada 15% · BlueGrace Logistics 10% · Edge Logistics 10% (balanced mandate). | 11/11 | 1 | 0 | 0 | 32.49 |
-| LTL national contract: compare Old Dominion, C.H. Robinson and Armada on service and cost | Award National LTL contract: Old Dominion 55% · C.H. Robinson 35% · Armada 10% (balanced mandate). | 11/11 | 1 | 0 | 0 | 23.37 |
-| Dallas to Atlanta: should Edge Logistics or BlueGrace Logistics take more of the 500 weekly loads? | Award Dallas, TX to Atlanta, GA of 500 weekly loads: J.B. Hunt 45% · C.H. Robinson 20% · Armada 15% · BlueGrace Logistics 10% · Edge Logistics 10% (balanced mandate). | 11/11 | 1 | 0 | 0 | 33.37 |
-| Chicago to Los Angeles intermodal: J.B. Hunt vs First Star vs Edge Logistics | Award Chicago, IL to Los Angeles, CA: J.B. Hunt 60% · Edge Logistics 25% · First Star 15% (balanced mandate). | 11/11 | 1 | 0 | 0 | 17.59 |
+| Dallas→Atlanta dry van: allocate 500 weekly loads | Award Dallas, TX to Atlanta, GA of 500 weekly loads: J.B. Hunt 45% · C.H. Robinson 20% · Armada 15% · BlueGrace Logistics 10% · Edge Logistics 10% (balanced mandate). | 11/11 | 1 | 0 | 0 | 31.2 |
+| LTL national contract: ODFL vs CHRW | Award National LTL contract: Old Dominion 60% · C.H. Robinson 40% (balanced mandate). | 11/11 | 1 | 0 | 0 | 17.33 |
+| Peak season surge capacity: who should get the extra Q4 loads? | Award Peak season surge (national): J.B. Hunt 35% · Old Dominion 30% · C.H. Robinson 15% · Edge Logistics 10% · Armada 10% (balanced mandate). | 11/11 | 1 | 0 | 0 | 41.63 |
+| Chicago to Los Angeles intermodal: allocate 300 weekly loads | Award Chicago, IL to Los Angeles, CA of 300 weekly loads: J.B. Hunt 60% · C.H. Robinson 15% · Edge Logistics 15% · First Star 10% (balanced mandate). | 11/11 | 1 | 0 | 0 | 25.22 |
+| Should Armada keep a share of the Dallas to Atlanta lane next year? | Award Dallas, TX to Atlanta, GA: J.B. Hunt 45% · C.H. Robinson 20% · Armada 15% · BlueGrace Logistics 10% · Edge Logistics 10% (balanced mandate). | 11/11 | 1 | 0 | 0 | 32.59 |
+| LTL national contract: compare Old Dominion, C.H. Robinson and Armada on service and cost | Award National LTL contract: Old Dominion 55% · C.H. Robinson 35% · Armada 10% (balanced mandate). | 11/11 | 1 | 0 | 0 | 22.99 |
+| Dallas to Atlanta: should Edge Logistics or BlueGrace Logistics take more of the 500 weekly loads? | Award Dallas, TX to Atlanta, GA of 500 weekly loads: J.B. Hunt 45% · C.H. Robinson 20% · Armada 15% · BlueGrace Logistics 10% · Edge Logistics 10% (balanced mandate). | 11/11 | 1 | 0 | 0 | 31.85 |
+| Chicago to Los Angeles intermodal: J.B. Hunt vs First Star vs Edge Logistics | Award Chicago, IL to Los Angeles, CA: J.B. Hunt 60% · Edge Logistics 25% · First Star 15% (balanced mandate). | 11/11 | 1 | 0 | 0 | 17.72 |
 
 ## Mandate sensitivity (Peak season surge lane)
 
