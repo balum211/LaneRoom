@@ -8,7 +8,7 @@ Form: https://forms.gle/rYC7PCaDg1xj9ZVu8 · Deadline: **Thursday Nov 6, 2026, 1
 | Contributing members | Bala Mallampati, Ravindranath Konduru (Ravi), Deepthi Avula and Neha Madhao Pande |
 | Completed breakout activity document | `Team24_LaneRoom_Proposal.pdf` (or the .docx) uploaded to Google Drive with "Anyone with the link can view", or a link to [docs/PROPOSAL.md](PROPOSAL.md) |
 | GitHub link | https://github.com/balum211/LaneRoom |
-| Live app | https://laneroom-team24.streamlit.app |
+| Live app | https://team24-logisticslanedealroom.streamlit.app |
 | Video demo (Drive link) | Your Google Drive link, sharing set to "Anyone with the link can view" (script: [DEMO_SCRIPT.md](DEMO_SCRIPT.md)) |
 
 **One-line description (if the form asks):** LaneRoom is a multi-agent freight tender committee: a Planner,
@@ -34,7 +34,7 @@ on-time %, rate per mile, claims %) is synthetic demo data for all carriers.
 
 ## Live app (Streamlit Community Cloud)
 
-- URL: https://laneroom-team24.streamlit.app · repo `balum211/LaneRoom`, branch `main`, main file `app.py`, Python 3.12.
+- URL: https://team24-logisticslanedealroom.streamlit.app · repo `balum211/LaneRoom`, branch `main`, main file `app.py`, Python 3.12.
 - Runs with **offline agents** by default, so it costs nothing and needs no key. To show the LLM agents, add
   `NEBIUS_API_KEY = "..."` under the app's **Settings → Secrets** (top-level secrets become environment variables).
 - The first visit after the app sleeps takes 1 to 2 minutes (install, 80 MB embedding model download, index load).

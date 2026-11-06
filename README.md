@@ -5,7 +5,7 @@
 
 **Team 24 · The Gen Academy, Mastering Agentic AI · Demo Day 2026** · sibling of [DealRoom](https://github.com/balum211/DealRoom)
 
-**▶ Live app: https://laneroom-team24.streamlit.app** (offline agents, no key needed; first load after idle takes 1 to 2 minutes) ·
+**▶ Live app: https://team24-logisticslanedealroom.streamlit.app** (offline agents, no key needed; first load after idle takes 1 to 2 minutes) ·
 Submission: [proposal PDF](docs/Team24_LaneRoom_Proposal.pdf) · [form guide](docs/SUBMISSION.md)
 
 LaneRoom is a team of AI agents that runs a shipper's **tender committee**. Give it a lane ("Dallas→Atlanta dry

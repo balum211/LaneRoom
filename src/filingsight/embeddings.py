@@ -6,7 +6,7 @@ retrieval evaluation are reproducible on any laptop or on Streamlit Cloud.
 """
 from __future__ import annotations
 
-from functools import lru_cache
+import threading
 
 import numpy as np
 from langchain_core.embeddings import Embeddings
@@ -42,6 +42,18 @@ class MiniLMEmbeddings(Embeddings):
         return self._embed(list(texts))
 
 
-@lru_cache(maxsize=1)
+_LOCK = threading.Lock()
+_EMBEDDINGS: MiniLMEmbeddings | None = None
+
+
 def get_embeddings() -> MiniLMEmbeddings:
-    return MiniLMEmbeddings()
+    """One shared, warmed-up model. Chroma downloads the 80 MB ONNX model on the first embed call; without the
+    lock, parallel agents (the Researcher's search threads) each started that download into the same file on a
+    fresh server, which crashed the app on Streamlit Cloud."""
+    global _EMBEDDINGS
+    with _LOCK:
+        if _EMBEDDINGS is None:
+            emb = MiniLMEmbeddings()
+            emb._fn(["warm up"])  # download + load the model once, before anyone runs in parallel
+            _EMBEDDINGS = emb
+    return _EMBEDDINGS
