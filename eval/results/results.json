@@ -1,15 +1,15 @@
 {
   "agents": "offline (no API key)",
-  "generated": "2026-11-06 11:41",
+  "generated": "2026-11-06 12:49",
   "retrieval": {
-    "questions": 22,
+    "questions": 25,
     "hit_at_5": 1.0,
-    "mrr": 0.932,
+    "mrr": 0.94,
     "misses": []
   },
   "quant": {
-    "metrics": 17,
-    "correct": 17,
+    "metrics": 29,
+    "correct": 29,
     "accuracy": 1.0,
     "rows": [
       {
@@ -232,6 +232,162 @@
           94.7
         ],
         "ok": true
+      },
+      {
+        "company": "Edge Logistics",
+        "metric": "revenue",
+        "expected": [
+          596.5,
+          548.0
+        ],
+        "got": [
+          596.5,
+          548.0
+        ],
+        "ok": true
+      },
+      {
+        "company": "Edge Logistics",
+        "metric": "op_income",
+        "expected": [
+          12.5,
+          9.3
+        ],
+        "got": [
+          12.5,
+          9.3
+        ],
+        "ok": true
+      },
+      {
+        "company": "Edge Logistics",
+        "metric": "op_cash_flow",
+        "expected": [
+          17.8,
+          13.4
+        ],
+        "got": [
+          17.8,
+          13.4
+        ],
+        "ok": true
+      },
+      {
+        "company": "Edge Logistics",
+        "metric": "operating_ratio",
+        "expected": [
+          97.9,
+          98.3
+        ],
+        "got": [
+          97.9,
+          98.3
+        ],
+        "ok": true
+      },
+      {
+        "company": "First Star",
+        "metric": "revenue",
+        "expected": [
+          88.1,
+          96.4
+        ],
+        "got": [
+          88.1,
+          96.4
+        ],
+        "ok": true
+      },
+      {
+        "company": "First Star",
+        "metric": "op_income",
+        "expected": [
+          2.6,
+          3.1
+        ],
+        "got": [
+          2.6,
+          3.1
+        ],
+        "ok": true
+      },
+      {
+        "company": "First Star",
+        "metric": "op_cash_flow",
+        "expected": [
+          3.3,
+          4.0
+        ],
+        "got": [
+          3.3,
+          4.0
+        ],
+        "ok": true
+      },
+      {
+        "company": "First Star",
+        "metric": "operating_ratio",
+        "expected": [
+          97.0,
+          96.8
+        ],
+        "got": [
+          97.0,
+          96.8
+        ],
+        "ok": true
+      },
+      {
+        "company": "BlueGrace Logistics",
+        "metric": "revenue",
+        "expected": [
+          640.5,
+          612.0
+        ],
+        "got": [
+          640.5,
+          612.0
+        ],
+        "ok": true
+      },
+      {
+        "company": "BlueGrace Logistics",
+        "metric": "op_income",
+        "expected": [
+          16.0,
+          14.6
+        ],
+        "got": [
+          16.0,
+          14.6
+        ],
+        "ok": true
+      },
+      {
+        "company": "BlueGrace Logistics",
+        "metric": "op_cash_flow",
+        "expected": [
+          22.0,
+          20.3
+        ],
+        "got": [
+          22.0,
+          20.3
+        ],
+        "ok": true
+      },
+      {
+        "company": "BlueGrace Logistics",
+        "metric": "operating_ratio",
+        "expected": [
+          97.5,
+          97.6
+        ],
+        "got": [
+          97.5,
+          97.6
+        ],
+        "ok": true
       }
     ]
   },
@@ -286,7 +442,7 @@
     "runs": [
       {
         "question": "Dallas\u2192Atlanta dry van: allocate 500 weekly loads",
-        "seconds": 23.78,
+        "seconds": 32.02,
         "llm_calls": 0,
         "tokens": 0,
         "cost_usd": 0.0,
@@ -299,11 +455,11 @@
         "allocation_valid": true,
         "cites_both": true,
         "cited_sources": 10,
-        "verdict": "Award Dallas, TX to Atlanta, GA of 500 weekly loads: J.B. Hunt 60% \u00b7 C.H. Robinson 20% \u00b7 Armada 20% (balanced mandate)."
+        "verdict": "Award Dallas, TX to Atlanta, GA of 500 weekly loads: J.B. Hunt 45% \u00b7 C.H. Robinson 20% \u00b7 Armada 15% \u00b7 BlueGrace Logistics 10% \u00b7 Edge Logistics 10% (balanced mandate)."
       },
       {
         "question": "LTL national contract: ODFL vs CHRW",
-        "seconds": 17.7,
+        "seconds": 16.52,
         "llm_calls": 0,
         "tokens": 0,
         "cost_usd": 0.0,
@@ -320,7 +476,7 @@
       },
       {
         "question": "Peak season surge capacity: who should get the extra Q4 loads?",
-        "seconds": 32.62,
+        "seconds": 40.89,
         "llm_calls": 0,
         "tokens": 0,
         "cost_usd": 0.0,
@@ -333,28 +489,11 @@
         "allocation_valid": true,
         "cites_both": true,
         "cited_sources": 10,
-        "verdict": "Award Peak season surge (national): Old Dominion 40% \u00b7 J.B. Hunt 35% \u00b7 C.H. Robinson 15% \u00b7 Armada 10% (balanced mandate)."
+        "verdict": "Award Peak season surge (national): J.B. Hunt 35% \u00b7 Old Dominion 30% \u00b7 C.H. Robinson 15% \u00b7 Edge Logistics 10% \u00b7 Armada 10% (balanced mandate)."
       },
       {
         "question": "Chicago to Los Angeles intermodal: allocate 300 weekly loads",
-        "seconds": 17.3,
-        "llm_calls": 0,
-        "tokens": 0,
-        "cost_usd": 0.0,
-        "research_retries": 0,
-        "claims_final": 11,
-        "supported_final": 11,
-        "injected_caught": true,
-        "retries": 1,
-        "balanced": true,
-        "allocation_valid": true,
-        "cites_both": true,
-        "cited_sources": 9,
-        "verdict": "Award Chicago, IL to Los Angeles, CA of 300 weekly loads: J.B. Hunt 60% \u00b7 C.H. Robinson 40% (balanced mandate)."
-      },
-      {
-        "question": "Should Armada keep a share of the Dallas to Atlanta lane next year?",
-        "seconds": 25.07,
+        "seconds": 25.54,
         "llm_calls": 0,
         "tokens": 0,
         "cost_usd": 0.0,
@@ -367,11 +506,28 @@
         "allocation_valid": true,
         "cites_both": true,
         "cited_sources": 10,
-        "verdict": "Award Dallas, TX to Atlanta, GA: J.B. Hunt 60% \u00b7 C.H. Robinson 20% \u00b7 Armada 20% (balanced mandate)."
+        "verdict": "Award Chicago, IL to Los Angeles, CA of 300 weekly loads: J.B. Hunt 60% \u00b7 C.H. Robinson 15% \u00b7 Edge Logistics 15% \u00b7 First Star 10% (balanced mandate)."
+      },
+      {
+        "question": "Should Armada keep a share of the Dallas to Atlanta lane next year?",
+        "seconds": 32.49,
+        "llm_calls": 0,
+        "tokens": 0,
+        "cost_usd": 0.0,
+        "research_retries": 0,
+        "claims_final": 11,
+        "supported_final": 11,
+        "injected_caught": true,
+        "retries": 1,
+        "balanced": true,
+        "allocation_valid": true,
+        "cites_both": true,
+        "cited_sources": 10,
+        "verdict": "Award Dallas, TX to Atlanta, GA: J.B. Hunt 45% \u00b7 C.H. Robinson 20% \u00b7 Armada 15% \u00b7 BlueGrace Logistics 10% \u00b7 Edge Logistics 10% (balanced mandate)."
       },
       {
         "question": "LTL national contract: compare Old Dominion, C.H. Robinson and Armada on service and cost",
-        "seconds": 25.62,
+        "seconds": 23.37,
         "llm_calls": 0,
         "tokens": 0,
         "cost_usd": 0.0,
@@ -385,6 +541,40 @@
         "cites_both": true,
         "cited_sources": 9,
         "verdict": "Award National LTL contract: Old Dominion 55% \u00b7 C.H. Robinson 35% \u00b7 Armada 10% (balanced mandate)."
+      },
+      {
+        "question": "Dallas to Atlanta: should Edge Logistics or BlueGrace Logistics take more of the 500 weekly loads?",
+        "seconds": 33.37,
+        "llm_calls": 0,
+        "tokens": 0,
+        "cost_usd": 0.0,
+        "research_retries": 0,
+        "claims_final": 11,
+        "supported_final": 11,
+        "injected_caught": true,
+        "retries": 1,
+        "balanced": true,
+        "allocation_valid": true,
+        "cites_both": true,
+        "cited_sources": 10,
+        "verdict": "Award Dallas, TX to Atlanta, GA of 500 weekly loads: J.B. Hunt 45% \u00b7 C.H. Robinson 20% \u00b7 Armada 15% \u00b7 BlueGrace Logistics 10% \u00b7 Edge Logistics 10% (balanced mandate)."
+      },
+      {
+        "question": "Chicago to Los Angeles intermodal: J.B. Hunt vs First Star vs Edge Logistics",
+        "seconds": 17.59,
+        "llm_calls": 0,
+        "tokens": 0,
+        "cost_usd": 0.0,
+        "research_retries": 0,
+        "claims_final": 11,
+        "supported_final": 11,
+        "injected_caught": true,
+        "retries": 1,
+        "balanced": true,
+        "allocation_valid": true,
+        "cites_both": true,
+        "cited_sources": 10,
+        "verdict": "Award Chicago, IL to Los Angeles, CA: J.B. Hunt 60% \u00b7 Edge Logistics 25% \u00b7 First Star 15% (balanced mandate)."
       }
     ],
     "citation_faithfulness": 1.0,
@@ -392,31 +582,37 @@
     "balanced_rate": 1.0,
     "allocation_valid_rate": 1.0,
     "cites_both_rate": 1.0,
-    "median_seconds": 24.4,
-    "p95_seconds": 32.6,
+    "median_seconds": 28.8,
+    "p95_seconds": 40.9,
     "avg_tokens": 0,
     "avg_cost_usd": 0.0,
-    "avg_cited_sources": 9.5
+    "avg_cited_sources": 9.8
   },
   "mandates": {
     "allocations": {
       "cost-first": {
-        "J.B. Hunt": 40.0,
-        "C.H. Robinson": 25.0,
+        "J.B. Hunt": 30.0,
+        "C.H. Robinson": 20.0,
         "Armada": 20.0,
-        "Old Dominion": 15.0
+        "Edge Logistics": 15.0,
+        "Old Dominion": 15.0,
+        "First Star": 0.0
       },
       "balanced": {
-        "Old Dominion": 40.0,
-        "J.B. Hunt": 35.0,
+        "Old Dominion": 30.0,
+        "J.B. Hunt": 30.0,
         "C.H. Robinson": 15.0,
-        "Armada": 10.0
+        "Edge Logistics": 15.0,
+        "Armada": 10.0,
+        "First Star": 0.0
       },
       "service-first": {
-        "Old Dominion": 50.0,
+        "Old Dominion": 40.0,
         "J.B. Hunt": 30.0,
         "C.H. Robinson": 10.0,
-        "Armada": 10.0
+        "Edge Logistics": 10.0,
+        "Armada": 10.0,
+        "First Star": 0.0
       }
     },
     "changes_award": true
@@ -425,7 +621,7 @@
     "runs": [
       {
         "question": "Dallas\u2192Atlanta dry van: allocate 500 weekly loads",
-        "seconds": 8.67,
+        "seconds": 11.2,
         "route": "refused",
         "cited_sources": 5,
         "allocation": false,
@@ -433,7 +629,7 @@
       },
       {
         "question": "LTL national contract: ODFL vs CHRW",
-        "seconds": 4.07,
+        "seconds": 3.67,
         "route": "refused",
         "cited_sources": 4,
         "allocation": false,
@@ -441,7 +637,7 @@
       },
       {
         "question": "Peak season surge capacity: who should get the extra Q4 loads?",
-        "seconds": 7.88,
+        "seconds": 10.22,
         "route": "refused",
         "cited_sources": 5,
         "allocation": false,
@@ -449,7 +645,7 @@
       },
       {
         "question": "Chicago to Los Angeles intermodal: allocate 300 weekly loads",
-        "seconds": 22.57,
+        "seconds": 10.89,
         "route": "refused",
         "cited_sources": 5,
         "allocation": false,
@@ -457,7 +653,7 @@
       },
       {
         "question": "Should Armada keep a share of the Dallas to Atlanta lane next year?",
-        "seconds": 5.36,
+        "seconds": 1.5,
         "route": "refused",
         "cited_sources": 4,
         "allocation": false,
@@ -465,7 +661,23 @@
       },
       {
         "question": "LTL national contract: compare Old Dominion, C.H. Robinson and Armada on service and cost",
-        "seconds": 10.83,
+        "seconds": 5.23,
+        "route": "refused",
+        "cited_sources": 5,
+        "allocation": false,
+        "both_lenses": false
+      },
+      {
+        "question": "Dallas to Atlanta: should Edge Logistics or BlueGrace Logistics take more of the 500 weekly loads?",
+        "seconds": 2.1,
+        "route": "refused",
+        "cited_sources": 5,
+        "allocation": false,
+        "both_lenses": false
+      },
+      {
+        "question": "Chicago to Los Angeles intermodal: J.B. Hunt vs First Star vs Edge Logistics",
+        "seconds": 4.31,
         "route": "refused",
         "cited_sources": 5,
         "allocation": false,
@@ -474,7 +686,7 @@
     ],
     "allocation_rate": 0.0,
     "both_lenses_rate": 0.0,
-    "avg_cited_sources": 4.7,
-    "median_seconds": 8.3
+    "avg_cited_sources": 4.8,
+    "median_seconds": 4.8
   }
 }

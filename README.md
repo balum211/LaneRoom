@@ -14,21 +14,30 @@ advocate and a **Resilience** advocate argue how to split the loads, has a **Ver
 page or scorecard row it cites, and hands a **human** a cited memo with a recommended **allocation % per carrier**.
 
 Providers compared: **J.B. Hunt** (JBHT, asset carrier: intermodal and dedicated), **C.H. Robinson** (CHRW, non-asset
-broker / 3PL), **Old Dominion Freight Line** (ODFL, LTL carrier) and **Armada** (privately held, see the data note).
+broker / 3PL), **Old Dominion Freight Line** (ODFL, LTL carrier), plus four privately held providers with synthetic
+profiles: **Armada**, **Edge Logistics**, **First Star** and **BlueGrace Logistics** (see the data note).
 
 > **What is real and what is synthetic**
 > - **Real:** the FY2025 Form 10-K filings of J.B. Hunt, C.H. Robinson and Old Dominion, downloaded from SEC EDGAR.
 >   Every financial figure LaneRoom shows for them is read from those filings and cited by page.
-> - **Synthetic (Armada):** Armada is privately held and files nothing with the SEC. Its document is an illustrative
->   provider profile written for this demo. It does not describe any real company named Armada, and none of its
->   numbers are real. It is labelled "SYNTHETIC" on every page, flagged in the index, and capped at 25% of any lane.
+> - **Synthetic (private providers):** Armada, Edge Logistics (Edge Logistics LLC), First Star (First Star LLC) and
+>   BlueGrace Logistics (BlueGrace Logistics LLC) are privately held and file nothing with the SEC. Each document is an
+>   illustrative provider profile written for this demo. **None of it is data from, or a claim about, the real
+>   companies with these names**, and none of the numbers are real. Each is labelled "SYNTHETIC" on every page,
+>   flagged in the index, and capped at 25% of any lane.
+> - **Badges, not logos:** each carrier is shown with an original monogram badge (mode icon + initials), not the
+>   company's real logo or trademark.
 > - **Synthetic (scorecard):** 10-Ks never report a shipper's tender acceptance, on-time %, rate per mile or claims %
->   by carrier, so the lane scorecard in `data/scorecard/` is synthetic demo data for **all four** providers.
+>   by carrier, so the lane scorecard in `data/scorecard/` is synthetic demo data for **all seven** providers.
 >   A real shipper would export the same columns from its TMS.
 
 ![LaneRoom home: an AI tender committee for freight lanes](docs/screenshots/01_home.png)
 
 ![Recommended tender allocation with the split bar and per-carrier fit](docs/screenshots/02_verdict.png)
+
+| Route map: one coloured route per carrier, width = share | Network map on real geography | Carrier roster with badges |
+|---|---|---|
+| ![route map](docs/screenshots/12_route_map.png) | ![network map](docs/screenshots/13_network_map.png) | ![roster](docs/screenshots/11_roster.png) |
 
 | Verifier catches a planted claim | Lane scorecard and 10-K financials | Cited tender memo |
 |---|---|---|
@@ -53,6 +62,7 @@ broker / 3PL), **Old Dominion Freight Line** (ODFL, LTL carrier) and **Armada** 
 | Decision | A Judge scores each carrier from lane KPIs, financial health and the verified debate, weighted by the shipper's mandate, then allocates 100% of loads under tender rules (≤ 60% per carrier, ≥ 10% backup share, 80% acceptance floor, 25% cap on synthetic-only evidence) |
 | Human in the loop | LangGraph `interrupt()` pauses before anything is awarded: approve, request changes, or ask a follow-up |
 | Memory | Thread memory in the LangGraph checkpointer; long-term shipper memory (cost-first / balanced / service-first mandate, preferred KPIs, incumbent carrier, past awards) that changes the Judge's weighting |
+| Logistics UI | Animated US route map with moving trucks (and a train on the intermodal lane), a per-lane route card where each carrier's route width follows its share, a pydeck arc map on real geography, carrier badges and a carrier roster |
 | Guardrails | Prompt-injection, scope and unknown-carrier checks on input, injection stripping on retrieved text, no stock advice in output, synthetic data labelled everywhere, disclaimer always added |
 
 ```mermaid
@@ -82,13 +92,13 @@ Demo script: [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md) · Course topics covered
 
 | Scenario | Lane in the scorecard | Example award (balanced mandate, offline agents) |
 |---|---|---|
-| **Dallas→Atlanta dry van: allocate 500 weekly loads** | DAL-ATL · J.B. Hunt, C.H. Robinson, Armada | J.B. Hunt 60% (300 loads) · C.H. Robinson 20% · Armada 20% |
-| **LTL national contract: ODFL vs CHRW** | LTL-NAT · Old Dominion, C.H. Robinson, Armada | Old Dominion 60% · C.H. Robinson 40% |
-| **Peak season surge capacity** | PEAK-NAT · all four | Old Dominion 40% · J.B. Hunt 35% · C.H. Robinson 15% · Armada 10% |
-| **Chicago→LA intermodal: 300 weekly loads** | CHI-LAX · J.B. Hunt, C.H. Robinson | J.B. Hunt 60% · C.H. Robinson 40% |
+| **Dallas→Atlanta dry van: allocate 500 weekly loads** | DAL-ATL · J.B. Hunt, C.H. Robinson, Armada, Edge Logistics, BlueGrace Logistics | J.B. Hunt 45% (225 loads) · C.H. Robinson 20% · Armada 15% · BlueGrace Logistics 10% · Edge Logistics 10% |
+| **LTL national contract: ODFL vs CHRW** | LTL-NAT · Old Dominion, C.H. Robinson, Armada, BlueGrace Logistics, First Star | Old Dominion 60% · C.H. Robinson 40% (the two named carriers) |
+| **Peak season surge capacity** | PEAK-NAT · six carriers | J.B. Hunt 35% · Old Dominion 30% · C.H. Robinson 15% · Edge Logistics 10% · Armada 10% |
+| **Chicago→LA intermodal: 300 weekly loads** | CHI-LAX · J.B. Hunt, C.H. Robinson, Edge Logistics, First Star | J.B. Hunt 60% · C.H. Robinson 15% · Edge Logistics 15% · First Star 10% |
 
-Switch the mandate and the award moves: for peak season, **cost-first** gives J.B. Hunt 40% and Old Dominion 15%,
-while **service-first** gives Old Dominion 50%. These awards come from synthetic scorecard data and illustrate the
+Switch the mandate and the award moves: for peak season, **cost-first** gives Old Dominion 15%, while
+**service-first** gives it 40%. These awards come from synthetic scorecard data and illustrate the
 method only.
 
 ## Results
@@ -99,18 +109,18 @@ Offline agents, no API key ([eval/results/summary.md](eval/results/summary.md)):
 |---|---|---|
 | Citation faithfulness (verified claims in final memos) | **100%** | ≥ 95% |
 | Injected false claim caught by the Verifier | **100%** | 100% |
-| Valid allocation (sums to 100%, ≤ 60% per carrier, synthetic cap 25%) | **100%** | 100% |
+| Valid allocation (≤ 100%, ≤ 60% per carrier, synthetic cap 25%) | **100%** | 100% |
 | Mandate changes the award (cost-first vs service-first) | **yes** | yes |
-| Quant metrics matching the printed filing / profile | **17/17** | all |
-| Researcher retrieval hit@5 (22 labelled questions) | **100%** | ≥ 85% |
-| Researcher retrieval MRR | **0.93** | ≥ 0.70 |
+| Quant metrics matching the printed filing / profile | **29/29** | all |
+| Researcher retrieval hit@5 (25 labelled questions) | **100%** | ≥ 85% |
+| Researcher retrieval MRR | **0.94** | ≥ 0.70 |
 | Memo cites both 10-K pages and scorecard rows | **100%** | 100% |
 | Guardrail decisions correct | **8/8** | all |
-| Median time per memo | **~24 s** on a laptop CPU | < 180 s |
+| Median time per memo | **~29 s** on a laptop CPU | < 180 s |
 | Estimated cost per memo (offline agents) | **$0** · tokens and cost are tracked per agent in LLM mode | < $0.05 |
 
-**Plain RAG (our Week 2 FilingSight on the same corpus) vs LaneRoom:** plain RAG never produces an allocation and
-cites 4.7 sources per answer; LaneRoom allocates in 100% of runs, weighs cost and service evidence in 100%, cites
+**Plain RAG vs LaneRoom:** plain RAG never produces an allocation and
+cites 4.8 sources per answer; LaneRoom allocates in 100% of runs, weighs cost and service evidence in 100%, cites
 9.5 sources and checks every claim. Each committee run includes a planted false claim ("J.B. Hunt accepted 100% of
 tenders at $1.15 per mile…") so the Verifier → revise loop is exercised every time. Offline advocates quote their
 evidence exactly, so faithfulness is high by design; with an API key run `python eval/run_eval.py --mode auto` to
@@ -158,7 +168,7 @@ Tools: `search_filings`, `get_page`, `list_companies`, `lane_scorecard`, `key_me
 ## Test and evaluate
 
 ```bash
-pytest -q                          # 38 tests: guardrails, memory, Quant, scorecard, allocation, verifier, full graph, MCP, LLM paths
+pytest -q                          # 42 tests: guardrails, memory, Quant, scorecard, allocation, verifier, full graph, MCP, LLM paths
 python eval/run_eval.py            # full evaluation -> eval/results/summary.md
 python eval/run_eval.py --mode auto   # evaluate the LLM agents (needs a key)
 ```
@@ -176,22 +186,23 @@ src/laneroom/
   tools.py                 search_filings, get_page, lane_scorecard, compute_change (+ MCP client path)
   guardrails.py, memory.py, mcp_server.py, observability.py, prompts.py, llm.py, ui.py
 src/filingsight/           retrieval stack reused from our Week 2 RAG project (via DealRoom)
-data/raw/                  FY2025 10-K PDFs (EDGAR) + the SYNTHETIC Armada profile (HTML source and PDF)
+data/raw/                  FY2025 10-K PDFs (EDGAR) + SYNTHETIC private-provider profiles (HTML source and PDF)
 data/scorecard/            SYNTHETIC lane scorecard CSV (scripts/make_scorecard.py)
 data/processed/            committed chunks + embeddings
-data/eval/                 22 labelled retrieval questions
+data/eval/                 25 labelled retrieval questions
 eval/run_eval.py           evaluation suite
 tests/                     pytest suite
 docs/                      architecture, proposal, demo script, course coverage, screenshots
 ```
 
-Rebuild the data: `python scripts/make_scorecard.py` and `python scripts/build_index.py semantic`.
+Rebuild the data: `python scripts/make_profiles.py` (then print the HTML to PDF), `python scripts/make_scorecard.py`
+and `python scripts/build_index.py semantic`.
 
 ## Data sources and disclaimer
 
 J.B. Hunt Transport Services, C.H. Robinson Worldwide and Old Dominion Freight Line FY2025 Form 10-K filings from
-SEC EDGAR (see [data/raw/README.md](data/raw/README.md) for accession numbers). The Armada profile and the lane
-scorecard are synthetic. LaneRoom is an educational decision-support tool, not procurement, legal or investment
+SEC EDGAR (see [data/raw/README.md](data/raw/README.md) for accession numbers). The private-provider profiles
+(Armada, Edge Logistics, First Star, BlueGrace Logistics) and the lane scorecard are synthetic. LaneRoom is an educational decision-support tool, not procurement, legal or investment
 advice. "Tender allowance" in the original brief is read here as **tender allocation**: how a shipper splits a
 lane's load tenders across carriers.
 

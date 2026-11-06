@@ -21,6 +21,9 @@ def test_aliases_and_typos_resolve():
     from filingsight.config import companies_in
 
     assert companies_in("ODLF vs CHRW vs JBHT vs LEPV") == ["J.B. Hunt", "C.H. Robinson", "Old Dominion", "Armada"]
+    assert companies_in("Edge Logistics LLC, First Star LLC or Blue-Grace Logistics LLC?") == [
+        "Edge Logistics", "First Star", "BlueGrace Logistics"]
+    assert companies_in("Should we hedge peak capacity?") == []  # "hedge" is not Edge Logistics
 
 
 def test_off_topic_blocked_and_empty_blocked():

@@ -67,8 +67,10 @@ def check_input(question: str) -> dict:
                 "notes": notes}
     if _ADVICE.search(q):
         notes.append("LaneRoom does not give stock advice. It recommends a freight tender allocation instead.")
-    if any(c in fs_config.SYNTHETIC_COMPANIES for c in (known or fs_config.COMPANIES)):
-        notes.append("Armada is privately held: its evidence is a synthetic, self-reported profile, not an SEC filing.")
+    synthetic = [c for c in (known or fs_config.COMPANIES) if c in fs_config.SYNTHETIC_COMPANIES]
+    if synthetic:
+        notes.append(f"{', '.join(synthetic)}: privately held, so the evidence is a synthetic, illustrative profile, "
+                     "not an SEC filing and not data from the real company.")
     return {"allowed": True, "reason": "", "notes": notes}
 
 

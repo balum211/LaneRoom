@@ -23,12 +23,12 @@ mcp = FastMCP("laneroom-carriers")
 
 @mcp.tool()
 def search_filings(query: str, company: str | None = None, k: int = 5) -> list[dict]:
-    """Search the J.B. Hunt, C.H. Robinson and Old Dominion FY2025 10-Ks and the SYNTHETIC Armada profile.
+    """Search the J.B. Hunt, C.H. Robinson and Old Dominion FY2025 10-Ks and the SYNTHETIC profiles of the private providers (Armada, Edge Logistics, First Star, BlueGrace Logistics).
     Returns passages with provider, page, 10-K Item and text.
 
     Args:
         query: what to look for, e.g. "intermodal capacity" or "LTL on-time service".
-        company: optional filter: "J.B. Hunt", "C.H. Robinson", "Old Dominion" or "Armada" (tickers work too).
+        company: optional filter: "J.B. Hunt", "C.H. Robinson", "Old Dominion", "Armada", "Edge Logistics", "First Star" or "BlueGrace Logistics" (tickers work too).
         k: number of passages (1-10).
     """
     k = max(1, min(int(k), 10))

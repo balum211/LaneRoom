@@ -46,7 +46,7 @@ flowchart LR
 **Allocation rules (Judge).** Share ∝ fit score², then:
 no carrier above **60%** (single-carrier dependence), every qualified carrier keeps at least **10%** (backup capacity),
 carriers below **80%** tender acceptance on the lane are backup only, providers backed only by synthetic or unaudited
-data (Armada) are capped at **25%**, and the incumbent from memory gets a small continuity bonus. Shares are rounded to
+data (the private providers) are capped at **25%**, and the incumbent from memory gets a small continuity bonus. Shares are rounded to
 5% and sum to exactly 100%; with a load count in the request, the memo converts shares into loads per week. All
 limits are configurable (`LR_MAX_SHARE`, `LR_MIN_SHARE`, `LR_MIN_ACCEPTANCE`, `LR_SYNTHETIC_CAP`).
 
@@ -57,8 +57,9 @@ limits are configurable (`LR_MAX_SHARE`, `LR_MIN_SHARE`, `LR_MIN_ACCEPTANCE`, `L
 | service-first | 0.25 | 0.30 | 0.10 | 0.10 | 0.15 | 0.10 |
 
 **Data.** Public FY2025 Form 10-K filings for J.B. Hunt (JBHT), C.H. Robinson (CHRW) and Old Dominion (ODFL) from
-SEC EDGAR, printed from EDGAR HTML to PDF so every passage keeps a page number. **Armada is privately held and files
-nothing with the SEC**: its document is a **synthetic**, clearly labelled provider profile written for the demo.
+SEC EDGAR, printed from EDGAR HTML to PDF so every passage keeps a page number. **Armada, Edge Logistics, First Star
+and BlueGrace Logistics are privately held and file nothing with the SEC**: each document is a **synthetic**, clearly
+labelled, illustrative provider profile written for the demo, not data from the real company.
 The **lane scorecard** (tenders offered/accepted, on-time %, rate per mile, claims % per lane, carrier and quarter)
 is also **synthetic**, because 10-Ks never report shipper-level tender data.
 

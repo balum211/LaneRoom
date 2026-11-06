@@ -30,10 +30,11 @@ st.set_page_config(page_title="LaneRoom · AI tender committee", page_icon="🚚
 st.markdown(ui.CSS + ui.MEMO_CSS + ui.BACKGROUND, unsafe_allow_html=True)
 
 EXAMPLES = [
-    ("Dallas→Atlanta 500 loads", "Dallas→Atlanta dry van: allocate 500 weekly loads"),
-    ("LTL: ODFL vs CHRW", "LTL national contract: ODFL vs CHRW"),
-    ("Peak surge", "Peak season surge capacity: who should get the extra Q4 loads?"),
-    ("Chicago→LA intermodal", "Chicago to Los Angeles intermodal: allocate 300 weekly loads between J.B. Hunt and C.H. Robinson"),
+    ("Dallas→Atlanta 500 loads", "Dallas→Atlanta dry van: allocate 500 weekly loads", ":material/local_shipping:"),
+    ("LTL: ODFL vs CHRW", "LTL national contract: ODFL vs CHRW", ":material/inventory_2:"),
+    ("Peak surge", "Peak season surge capacity: who should get the extra Q4 loads?", ":material/bolt:"),
+    ("Chicago→LA intermodal", "Chicago to Los Angeles intermodal: allocate 300 weekly loads between J.B. Hunt and C.H. Robinson",
+     ":material/train:"),
 ]
 METRIC_LABELS = {"acceptance_pct": "Tender acceptance %", "on_time_pct": "On-time %", "rate_per_mile": "Rate per mile",
                  "claims_pct": "Claims %"}
@@ -88,7 +89,8 @@ with st.sidebar:
 
     st.markdown("#### Data")
     st.caption("J.B. Hunt, C.H. Robinson and Old Dominion: FY2025 Form 10-K (SEC EDGAR). "
-               "**Armada** is privately held: a **synthetic** profile. The lane scorecard is **synthetic** demo data.")
+               "**Armada, Edge Logistics, First Star and BlueGrace Logistics** are privately held: **synthetic**, illustrative "
+               "profiles, not data from those companies. The lane scorecard is **synthetic** demo data.")
 
     st.markdown("#### Memory")
     if user["memos"]:
@@ -102,6 +104,39 @@ with st.sidebar:
             st.rerun()
     else:
         st.caption("No approved awards yet. Approve one and it is remembered here.")
+
+
+def route_deck(plan: dict, allocation: list[dict]):
+    """pydeck ArcLayer of the lane on a dark basemap; None if pydeck is unavailable."""
+    try:
+        import pydeck as pdk
+    except ImportError:
+        return None
+    from laneroom import maps
+
+    awarded = [r for r in allocation if r.get("share", 0) > 0] or allocation
+    routes = maps.LANE_ROUTES.get(plan.get("lane_id", ""), [])
+    rows = []
+    for i, (a, b) in enumerate(routes):
+        legs = awarded if len(routes) == 1 else [awarded[i % len(awarded)]] if awarded else []
+        for j, r in enumerate(legs):
+            hexc = maps.PROVIDERS.get(r["company"], maps.FALLBACK)["color"].lstrip("#")
+            rgb = [int(hexc[k:k + 2], 16) for k in (0, 2, 4)]
+            rows.append({"from": a, "to": b, "carrier": r["company"], "share": r["share"], "src": list(maps.CITIES[a]),
+                         "dst": list(maps.CITIES[b]), "color": rgb, "width": 2 + r["share"] / 8,
+                         "height": 0.25 + 0.18 * j})
+    cities = [{"name": c, "pos": list(maps.CITIES[c])} for c in {c for r in routes for c in r}]
+    layers = [
+        pdk.Layer("ArcLayer", rows, get_source_position="src", get_target_position="dst", get_source_color="color",
+                  get_target_color="color", get_width="width", get_height="height", pickable=True),
+        pdk.Layer("ScatterplotLayer", cities, get_position="pos", get_radius=26000, get_fill_color=[234, 246, 255],
+                  get_line_color=[4, 19, 27], line_width_min_pixels=2, stroked=True),
+        pdk.Layer("TextLayer", cities, get_position="pos", get_text="name", get_size=13, get_color=[201, 220, 230],
+                  get_pixel_offset=[0, -16]),
+    ]
+    view = pdk.ViewState(latitude=37.5, longitude=-95.5, zoom=3.15, pitch=35)
+    return pdk.Deck(layers=layers, initial_view_state=view, map_provider="carto", map_style="dark",
+                    tooltip={"text": "{carrier}: {share}% · {from} → {to}"})
 
 
 def run_stream(gen, box) -> None:
@@ -122,14 +157,14 @@ tab_room, tab_eval, tab_how, tab_course = st.tabs(["Committee", "Evaluation", "H
 with tab_room:
     st.markdown(ui.section("lightning", "Pick a scenario or write your own"), unsafe_allow_html=True)
     cols = st.columns(len(EXAMPLES))
-    for col, (label, ex) in zip(cols, EXAMPLES):
-        if col.button(label, width="stretch", help=ex):
+    for col, (label, ex, ico) in zip(cols, EXAMPLES):
+        if col.button(label, width="stretch", help=ex, icon=ico):
             ss.question = ex
-    q_col, b_col = st.columns([5, 1], vertical_alignment="bottom")
+    q_col, b_col = st.columns([4.3, 1.7], vertical_alignment="bottom")
     with q_col:
         question = st.text_area("Your tender request", key="question", height=80, label_visibility="collapsed")
     with b_col:
-        go = st.button("Convene committee", type="primary", width="stretch")
+        go = st.button("Convene committee", type="primary", width="stretch", icon=":material/gavel:")
 
     if go:
         ss.thread = room.new_thread()
@@ -143,6 +178,11 @@ with tab_room:
                              f"{tot['tokens_in'] + tot['tokens_out']:,} tokens · ${tot['cost_usd']:.4f}",
                        state="complete", expanded=False)
 
+    if not ss.thread:
+        st.markdown(ui.section("truck", "Carrier roster: who can bid on your lanes"), unsafe_allow_html=True)
+        st.markdown(ui.roster(config.COMPANIES), unsafe_allow_html=True)
+        st.markdown(ui.road("I-20 · DAL → ATL · 500 loads / wk"), unsafe_allow_html=True)
+
     if ss.thread:
         state = room.state(ss.thread)
         st.markdown(ui.pipeline(ss.trace), unsafe_allow_html=True)
@@ -153,9 +193,10 @@ with tab_room:
             for note in state.get("guard", {}).get("notes", []):
                 st.info(note, icon="🛡️")
             st.markdown(ui.verdict(state.get("judge", {})), unsafe_allow_html=True)
+            st.markdown(ui.lane_card(state.get("judge", {}), state.get("plan", {})), unsafe_allow_html=True)
 
-            t_debate, t_metrics, t_memo, t_evidence, t_trace = st.tabs(
-                ["Debate", "Scorecard & metrics", "Memo", "Evidence", "Agent log"])
+            t_debate, t_metrics, t_map, t_memo, t_evidence, t_trace = st.tabs(
+                ["Debate", "Scorecard & metrics", "Network map", "Memo", "Evidence", "Agent log"])
             all_claims = state.get("cost_claims", []) + state.get("service_claims", [])
             with t_debate:
                 dropped = [c for c in all_claims if c["status"] == "dropped"]
@@ -180,7 +221,13 @@ with tab_room:
                            "and accepted, on-time %, rate per mile and claims % per quarter of 2025. Not real carrier data.")
                 st.markdown(ui.metric_grid(state.get("metrics", []), fmt_value), unsafe_allow_html=True)
                 st.caption("Financial health read by the Quant agent straight from each 10-K's tables. The page chip is the "
-                           "source page. Armada's figures come from its synthetic, self-reported profile.")
+                           "source page. Private providers' figures come from synthetic, illustrative profiles.")
+            with t_map:
+                deck = route_deck(state.get("plan", {}), state.get("judge", {}).get("allocation", []))
+                if deck is not None:
+                    st.pydeck_chart(deck, height=460)
+                st.caption("Real geography (pydeck arcs on a CARTO basemap). Arc width follows each carrier's share; colours "
+                           "match the badges. Lanes are schematic metro-to-metro routes, not actual carrier networks.")
             with t_memo:
                 with st.container(key="memo_paper"):
                     st.markdown(state["memo"])

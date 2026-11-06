@@ -29,7 +29,7 @@ during the demo. **✅ shown** = visible in the app or eval. **◐ partial** = p
 | Memory: working, episodic, semantic | ✅ | Working = graph state. Episodic = approved awards. Semantic = shipper mandate (cost-first / balanced / service-first), preferred KPIs and incumbent (long-term store) |
 | Agentic RAG: the agent decides to search again | ✅ | Researcher re-searches any sub-question whose results are weak, using a reformulated query (LLM rewrite or keyword rewrite). The Agent log shows how many re-searches ran |
 | ReAct loop: think, act, observe | ✅ | Verifier → Revise → Verifier: rejected claims go back to their author with the reason (max 2 loops) |
-| RAG evals: retrieval first, then answer | ✅ | hit@5 and MRR on 22 labelled carrier questions, citation faithfulness, and the planted false claim |
+| RAG evals: retrieval first, then answer | ✅ | hit@5 and MRR on 25 labelled carrier questions, citation faithfulness, and the planted false claim |
 | Graph RAG / Cypher | ○ | The questions are about one provider's filing and one lane at a time, not multi-hop relationships, so a knowledge graph would add cost without better answers (the "when graph RAG is worth it" test from the session) |
 
 ### Week 3 · Multi-agent systems, LangGraph, MCP, A2A
@@ -54,8 +54,8 @@ during the demo. **✅ shown** = visible in the app or eval. **◐ partial** = p
 | Cost and latency as eval dimensions | ✅ | Median and p95 seconds, tokens and estimated cost per memo in the eval report |
 | Tracing and observability | ✅ | Every run's agent trace is written to `data/traces/runs.jsonl`. Set `LANGSMITH_TRACING=true` to send full traces to LangSmith (the sidebar shows when it is on) |
 | Turning logs into eval cases, feedback loop | ✅ | Every human review decision is logged to `data/eval/feedback.jsonl`. `python eval/run_eval.py --feedback` replays those requests as regression cases |
-| Regression testing and CI | ✅ | 38 pytest tests and the eval run offline with no API key, so they are reproducible and CI ready |
-| Baseline comparison | ✅ | Plain RAG (Week 2 FilingSight on the same corpus) vs the LaneRoom committee on the same prompts |
+| Regression testing and CI | ✅ | 42 pytest tests and the eval run offline with no API key, so they are reproducible and CI ready |
+| Baseline comparison | ✅ | Plain RAG vs the LaneRoom committee on the same prompts |
 | Alerts and dashboards | ◐ | Thresholds sit in the eval report targets. No live alerting, because the demo is a local app |
 
 ### Week 5 · Fine-tuning and local models

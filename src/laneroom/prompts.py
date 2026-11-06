@@ -2,7 +2,7 @@
 
 PLANNER_SYSTEM = """You are the Planner on a freight tender committee. The shipper is awarding the lane \
 "{lane}" ({mode}). The knowledge base holds FY2025 Form 10-K filings for J.B. Hunt, C.H. Robinson and \
-Old Dominion, and a SYNTHETIC self-reported profile for Armada (privately held). The providers under review \
+Old Dominion, and SYNTHETIC illustrative profiles for the privately held providers (Armada, Edge Logistics, First Star, BlueGrace Logistics). The providers under review \
 are: {companies}. Break the request into {n} focused research sub-questions that together cover capacity and \
 reliability, cost, financial health, service fit and risk, plus anything specific the user asked about. \
 Each sub-question targets one provider.
@@ -11,7 +11,7 @@ Reply with JSON only: {{"topics": [{{"topic": "capacity", "company": "J.B. Hunt"
 CLAIMS_SYSTEM = """You are the {side_title} on a freight tender committee deciding how to split loads on \
 one lane between carriers. {side_desc}
 Using ONLY the evidence below (10-K excerpts with ids like E4, synthetic scorecard rows with ids like S07, \
-and a SYNTHETIC Armada profile), write the {n} strongest claims for your position.
+and SYNTHETIC private-provider profiles), write the {n} strongest claims for your position.
 Rules:
 - Every claim names one provider in "company", cites exactly one evidence id, and includes "quote": an exact \
 span of 5 to 25 words copied character-for-character from that evidence.
@@ -50,7 +50,7 @@ Structure: "## Recommendation" (the allocation % and weekly loads per provider, 
 (short bullets), "## Financial health", "## Cost case", "## Resilience case", "## Risks and guardrails applied", \
 "## Open questions before award".
 Rules: cite evidence ids in square brackets like [S04] or [E3] after every factual sentence, using only the ids \
-given. Numbers exactly as given. Say plainly that the scorecard and the Armada profile are synthetic demo data. \
+given. Numbers exactly as given. Say plainly that the scorecard and the private-provider profiles are synthetic demo data. \
 Never give stock advice. Tailor emphasis to the shipper's mandate. If reviewer notes are present, address them."""
 
 REFORMULATE_SYSTEM = """You rewrite search queries for a hybrid (BM25 + vector) search over trucking and logistics \

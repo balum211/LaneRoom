@@ -27,28 +27,37 @@ BASE = {
         "J.B. Hunt": (2600, 94.0, 96.4, 2.36, 0.14),
         "C.H. Robinson": (2300, 89.0, 92.8, 2.17, 0.31),
         "Armada": (1600, 92.0, 95.3, 2.29, 0.21),
+        "Edge Logistics": (1200, 87.0, 92.0, 2.14, 0.34),
+        "BlueGrace Logistics": (900, 88.5, 92.6, 2.20, 0.30),
     },
     "LTL-NAT": {
         "Old Dominion": (3200, 99.1, 99.0, 5.92, 0.09),
         "C.H. Robinson": (2400, 95.0, 93.6, 5.08, 0.44),
         "Armada": (900, 92.5, 93.2, 5.36, 0.33),
+        "BlueGrace Logistics": (1600, 94.0, 93.0, 5.02, 0.40),
+        "First Star": (700, 91.0, 92.4, 5.20, 0.38),
     },
     "PEAK-NAT": {
         "J.B. Hunt": (3000, 92.0, 94.8, 2.58, 0.17),
         "C.H. Robinson": (2800, 91.0, 91.2, 2.83, 0.36),
         "Old Dominion": (1800, 98.0, 98.4, 6.31, 0.10),
         "Armada": (1400, 88.0, 93.4, 2.52, 0.24),
+        "Edge Logistics": (1500, 89.0, 90.5, 2.78, 0.38),
+        "First Star": (900, 86.0, 91.0, 2.70, 0.30),
     },
     "CHI-LAX": {
         "J.B. Hunt": (2200, 95.5, 95.0, 1.84, 0.12),
         "C.H. Robinson": (1700, 90.0, 91.5, 2.06, 0.29),
+        "Edge Logistics": (900, 88.0, 90.8, 2.01, 0.33),
+        "First Star": (600, 87.5, 91.6, 2.10, 0.27),
     },
 }
 # Seasonality: peak season (Q4) squeezes asset fleets harder than brokers' flexible networks.
 SEASON = {"asset": ((0.6, 0.3, -0.03), (0.2, 0.1, -0.01), (-0.4, -0.2, 0.02), (-2.4, -1.1, 0.09)),
           "broker": ((0.4, 0.2, -0.05), (0.0, 0.0, -0.02), (-0.2, -0.1, 0.03), (-1.0, -0.6, 0.14)),
           "small": ((0.8, 0.4, -0.02), (0.4, 0.2, 0.0), (-0.8, -0.3, 0.03), (-9.5, -2.6, 0.11))}
-KIND = {"J.B. Hunt": "asset", "Old Dominion": "asset", "C.H. Robinson": "broker", "Armada": "small"}
+KIND = {"J.B. Hunt": "asset", "Old Dominion": "asset", "C.H. Robinson": "broker", "Armada": "small",
+        "Edge Logistics": "broker", "BlueGrace Logistics": "broker", "First Star": "small"}
 # Peak lane: tenders offered jump in Q4.
 VOLUME = {"PEAK-NAT": (0.6, 0.7, 0.9, 1.8)}
 

@@ -57,7 +57,7 @@ FEEDBACK_PATH = Path(os.getenv("LR_FEEDBACK_PATH", DATA_DIR / "eval" / "feedback
 
 DISCLAIMER = (
     "LaneRoom is a decision-support tool for education. Carrier financials come from public FY2025 10-K "
-    "filings; the shipper scorecard and the Armada profile are SYNTHETIC demo data. It is not procurement, "
+    "filings; the shipper scorecard and the private-provider profiles (Armada, Edge Logistics, First Star, BlueGrace Logistics) are SYNTHETIC demo data, not real company data. It is not procurement, "
     "legal or investment advice. Verify every figure against the cited page or scorecard row."
 )
 

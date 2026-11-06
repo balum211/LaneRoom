@@ -48,6 +48,14 @@ FILINGS: tuple[Filing, ...] = (
     # provider profile written for the demo (data/raw/armada_profile_synthetic.html).
     Filing("Armada", "ARMADA", "Profile (synthetic)", 2025, "armada_profile_synthetic.pdf", body_last_page=5,
            covered_years=(2024, 2025), synthetic=True, toc_pages=1),
+    # More privately held providers: SYNTHETIC profiles from scripts/make_profiles.py. They are illustrative only and
+    # are not data from, or claims about, the real companies with these names.
+    Filing("Edge Logistics", "EDGE", "Profile (synthetic)", 2025, "edge_profile_synthetic.pdf", body_last_page=5,
+           covered_years=(2024, 2025), synthetic=True, toc_pages=1),
+    Filing("First Star", "FIRSTSTAR", "Profile (synthetic)", 2025, "firststar_profile_synthetic.pdf", body_last_page=5,
+           covered_years=(2024, 2025), synthetic=True, toc_pages=1),
+    Filing("BlueGrace Logistics", "BLUEGRACE", "Profile (synthetic)", 2025, "bluegrace_profile_synthetic.pdf",
+           body_last_page=5, covered_years=(2024, 2025), synthetic=True, toc_pages=1),
 )
 
 COMPANIES = tuple(f.company for f in FILINGS)
@@ -60,6 +68,9 @@ ALIASES: dict[str, str] = {
     "C.H. Robinson": r"c\.?\s?h\.?\s?robinson|chrw|robinson",
     "Old Dominion": r"old dominion|odfl|odlf",
     "Armada": r"armada|lepv",
+    "Edge Logistics": r"edge logistics|edge",
+    "First Star": r"first\s?star",
+    "BlueGrace Logistics": r"blue[- ]?grace",
 }
 
 

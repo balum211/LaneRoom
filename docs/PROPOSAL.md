@@ -48,10 +48,10 @@ See [ARCHITECTURE.md](ARCHITECTURE.md) for the graph, the agent table and the al
 | Orchestration | LangGraph: parallel fan-out (Researcher + Quant, Cost + Resilience), conditional retry loop, interrupt for human review, checkpointer |
 | LLM | Any OpenAI-compatible model via LangChain (Nebius Llama-3.3-70B by default); deterministic offline agents when no key is set |
 | Retrieval | Reused from our Week 2 project FilingSight (via DealRoom): semantic chunks, Chroma (MiniLM ONNX) + BM25, Reciprocal Rank Fusion, local reranker, provider filters |
-| Data | J.B. Hunt, C.H. Robinson and Old Dominion FY2025 Form 10-K (SEC EDGAR) + a **synthetic** Armada profile, 1,014 chunks with provider, page and Item metadata; a **synthetic** 48-row lane scorecard |
+| Data | J.B. Hunt, C.H. Robinson and Old Dominion FY2025 Form 10-K (SEC EDGAR) + **synthetic** profiles for four private providers (Armada, Edge Logistics, First Star, BlueGrace Logistics), 1,033 chunks with provider, page and Item metadata; a **synthetic** 80-row lane scorecard |
 | Tools | MCP server (`laneroom-carriers`): `search_filings`, `get_page`, `list_companies`, `lane_scorecard`, `key_metrics`, `compute_change` |
-| UI | Streamlit 3D glass theme with a freight-orange accent: live agent timeline, allocation bar, debate view with verification badges, scorecard and financial cards, memo, evidence viewer, approve / revise / follow-up |
-| Quality | pytest suite (38 tests), evaluation script, GitHub Actions CI |
+| UI | Streamlit 3D glass theme with a freight-orange accent: animated US route map with moving trucks, per-lane route card, pydeck arc map, carrier badges and roster, live agent timeline, allocation bar, debate view with verification badges, scorecard and financial cards, memo, evidence viewer, approve / revise / follow-up |
+| Quality | pytest suite (42 tests), evaluation script, GitHub Actions CI |
 
 ## Guardrails
 
@@ -66,7 +66,7 @@ See [ARCHITECTURE.md](ARCHITECTURE.md) for the graph, the agent table and the al
 ## Evaluation
 
 `python eval/run_eval.py` measures citation faithfulness, whether an injected false claim is caught, allocation
-validity, mandate sensitivity, Quant accuracy against the printed filing values (17/17), retrieval hit@5 on 22
+validity, mandate sensitivity, Quant accuracy against the printed filing values (29/29), retrieval hit@5 on 25
 labelled carrier questions, debate balance, guardrail decisions, latency and cost, and a side-by-side with plain RAG.
 Latest results: [eval/results/summary.md](../eval/results/summary.md) and the app's Evaluation tab.
 
@@ -87,7 +87,7 @@ One owner per workstream; everyone reviews and rehearses the demo.
 | **Deepthi Avula** | Streamlit UI, allocation and debate views, README and the demo video |
 | **Neha Madhao Pande** | Evaluation set, LLM judge, guardrails, synthetic-data labelling and the Demo Day slides |
 
-1. **Nov 6 (done):** full committee graph over the FY2025 10-Ks, synthetic Armada profile and scorecard, MCP server,
+1. **Nov 6 (done):** full committee graph over the FY2025 10-Ks, synthetic private-provider profiles and scorecard, MCP server,
    human approval, memory, Streamlit UI and eval suite with cost and latency tracking.
 2. **Nov 7 to 8:** run the eval with LLM agents and an API key to measure real tokens and cost per memo, tune prompts,
    rehearse.
@@ -97,9 +97,9 @@ One owner per workstream; everyone reviews and rehearses the demo.
 | Risk | Fallback |
 |---|---|
 | LLM slow or rate limited on stage | Offline agents run the same graph with no key; a recorded run as backup |
-| Judges ask whether the tender data is real | Every screen, the memo and the README label the scorecard and Armada as synthetic; the 10-K figures are real and page-cited |
+| Judges ask whether the tender data is real | Every screen, the memo and the README label the scorecard and the private-provider profiles as synthetic; the 10-K figures are real and page-cited |
 | Agents loop or overspend | Hard caps on Verifier retries and debate rounds; tokens and cost tracked per agent |
-| Filing tables parse badly | Quant reads named table rows and is tested against the printed figures (17 of 17 match) |
+| Filing tables parse badly | Quant reads named table rows and is tested against the printed figures (29 of 29 match) |
 
 **Future work:** live EDGAR fetch for any carrier ticker, a TMS/CSV upload for the shipper's real scorecard,
 spot-vs-contract rate benchmarks, multi-lane network optimisation, and pushing approved awards to the TMS.

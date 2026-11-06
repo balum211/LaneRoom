@@ -8,6 +8,10 @@ font = "sans serif"
 
 [server]
 headless = true
+# The app writes traces, memory and bytecode under the repo while a committee runs. A file watcher would
+# treat that as a source change and restart the script mid-run (seen on Streamlit Cloud), so it is off.
+fileWatcherType = "none"
+runOnSave = false
 
 [browser]
 gatherUsageStats = false

@@ -55,10 +55,10 @@ def _evidence(doc, score: float, topic: str = "") -> dict:
 
 
 def search_filings(query: str, company: str | None = None, k: int = 5, topic: str = "") -> list[dict]:
-    """Hybrid search (dense + BM25 + rerank) over the carrier 10-Ks and the synthetic Armada profile.
+    """Hybrid search (dense + BM25 + rerank) over the carrier 10-Ks and the synthetic private-provider profiles.
 
     ``company`` restricts the search to one provider ("J.B. Hunt", "C.H. Robinson", "Old Dominion",
-    "Armada"); None searches all providers with a fair share per provider.
+    "Armada", "Edge Logistics", "First Star", "BlueGrace Logistics"); None searches all providers with a fair share per provider.
     """
     get_index()
     if company:

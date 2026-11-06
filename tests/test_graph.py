@@ -35,7 +35,8 @@ def test_committee_end_to_end_with_stress_test_and_human_review():
     final = [c for c in s["cost_claims"] + s["service_claims"] if c["status"] != "dropped"]
     assert final and all(c["status"] == "supported" for c in final)
     alloc = {r["company"]: r for r in s["judge"]["allocation"]}
-    assert set(alloc) == {"J.B. Hunt", "C.H. Robinson", "Armada"}
+    assert set(alloc) == {"J.B. Hunt", "C.H. Robinson", "Armada", "Edge Logistics", "BlueGrace Logistics"}
+    assert all(alloc[c]["share"] <= 25 for c in ("Armada", "Edge Logistics", "BlueGrace Logistics"))  # synthetic caps
     assert sum(r["share"] for r in alloc.values()) == 100
     assert sum(r["loads"] for r in alloc.values()) == 500
     assert alloc["Armada"]["share"] <= 25  # synthetic-evidence cap

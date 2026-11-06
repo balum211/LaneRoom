@@ -1,7 +1,7 @@
 """Quant agent's extraction layer.
 
 1. Financial health: key FY2025 vs FY2024 figures read from each carrier's own 10-K tables (and from the
-   synthetic Armada profile, flagged as such). Each spec names the page and row label; values are parsed
+   synthetic private-provider profiles, flagged as such). Each spec names the page and row label; values are parsed
    from the indexed text at run time, so every number carries a page citation.
 2. Lane service: tender acceptance, on-time %, rate per mile and claims % for the lane, from the
    (synthetic) shipper scorecard, with row citations.
@@ -51,12 +51,15 @@ SPECS: tuple[MetricSpec, ...] = (
     MetricSpec("net_income", "Net income", "Old Dominion", 63, "Net income |", "$M", _K),
     MetricSpec("op_cash_flow", "Operating cash flow", "Old Dominion", 67, "Net cash provided by operating activities |", "$M", _K),
     MetricSpec("operating_ratio", "Operating ratio", "Old Dominion", 48, "Operating ratio |", "%", higher_is_better=False),
-    # Armada: SYNTHETIC self-reported profile p.5 (in millions)
-    MetricSpec("revenue", "Revenue (self-reported)", "Armada", 5, "Revenue (in millions) |", "$M"),
-    MetricSpec("op_income", "Operating income (self-reported)", "Armada", 5, "Operating income (in millions) |", "$M"),
-    MetricSpec("op_cash_flow", "Operating cash flow (self-reported)", "Armada", 5,
-               "Net cash provided by operating activities (in millions) |", "$M"),
-    MetricSpec("operating_ratio", "Operating ratio (self-reported)", "Armada", 5, "Operating ratio |", "%", higher_is_better=False),
+    # Privately held providers (Armada, Edge Logistics, First Star, BlueGrace Logistics): SYNTHETIC profiles,
+    # page 5 "Item 7" table (in millions). Same layout for every profile.
+    *(spec for c in fs_config.SYNTHETIC_COMPANIES for spec in (
+        MetricSpec("revenue", "Revenue (synthetic)", c, 5, "Revenue (in millions) |", "$M"),
+        MetricSpec("op_income", "Operating income (synthetic)", c, 5, "Operating income (in millions) |", "$M"),
+        MetricSpec("op_cash_flow", "Operating cash flow (synthetic)", c, 5,
+                   "Net cash provided by operating activities (in millions) |", "$M"),
+        MetricSpec("operating_ratio", "Operating ratio (synthetic)", c, 5, "Operating ratio |", "%", higher_is_better=False),
+    )),
 )
 
 

@@ -17,8 +17,9 @@ lane scorecard, debate cost against service, fact-check every claim and recommen
 that a human approves, built with LangGraph, an MCP server, Streamlit and an evaluation suite.
 
 **Data note to keep in every description:** J.B. Hunt, C.H. Robinson and Old Dominion figures come from their real
-FY2025 10-Ks. Armada is privately held, so its profile is synthetic, and the lane scorecard (tender acceptance,
-on-time %, rate per mile, claims %) is synthetic demo data for all carriers.
+FY2025 10-Ks. Armada, Edge Logistics, First Star and BlueGrace Logistics are privately held, so their profiles are
+synthetic and illustrative (not data from those companies), and the lane scorecard (tender acceptance, on-time %,
+rate per mile, claims %) is synthetic demo data for all carriers.
 
 ## Headline results (offline agents, no API key)
 
@@ -26,11 +27,11 @@ on-time %, rate per mile, claims %) is synthetic demo data for all carriers.
 |---|---|
 | Citation faithfulness | 100% |
 | Planted false claim caught by the Verifier | 100% |
-| Valid allocations (sum to 100%, ≤ 60% per carrier, synthetic cap 25%) | 100% |
-| 10-K figures read correctly | 17/17 |
-| Retrieval hit@5 / MRR (22 labelled questions) | 100% / 0.93 |
+| Valid allocations (≤ 60% per carrier, synthetic cap 25%) | 100% |
+| 10-K and profile figures read correctly | 29/29 |
+| Retrieval hit@5 / MRR (25 labelled questions) | 100% / 0.94 |
 | Guardrail decisions | 8/8 |
-| Tests | 38 passing |
+| Tests | 42 passing |
 
 ## Live app (Streamlit Community Cloud)
 

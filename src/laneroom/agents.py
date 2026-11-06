@@ -5,7 +5,7 @@ Every agent has two implementations:
 * Offline mode: deterministic agents that need no key. The demo, the tests and CI all run end to end
   with no API cost, and any LLM failure falls back to these.
 
-Evidence ids: ``E#`` = a 10-K (or synthetic Armada profile) passage with a page; ``S##`` = a row of the
+Evidence ids: ``E#`` = a 10-K (or synthetic private-provider profile) passage with a page; ``S##`` = a row of the
 synthetic shipper scorecard. Claims cite one id each and the Verifier checks them against it.
 """
 from __future__ import annotations
@@ -81,7 +81,7 @@ def _evidence_map(state: dict) -> dict[str, dict]:
 def cite_label(e: dict) -> str:
     if e.get("source") == "scorecard":
         return f"Synthetic shipper scorecard, row {e['id']} ({e['item_title']})"
-    doc = "Armada profile (SYNTHETIC, self-reported)" if e.get("synthetic") else f"{e['company']} 10-K FY{config.FISCAL_YEAR}"
+    doc = f"{e['company']} profile (SYNTHETIC, illustrative)" if e.get("synthetic") else f"{e['company']} 10-K FY{config.FISCAL_YEAR}"
     return f"{doc}, Item {e['item']} {e['item_title']}, p.{e['page']}"
 
 
@@ -131,7 +131,7 @@ def plan_lane(question: str) -> dict:
     lane = scorecard.lanes()[lane_id]
     named = companies_in(question)
     companies = named or list(lane["carriers"])
-    if len(named) == 1:
+    if len(named) == 1 or (named and all(c in config.SYNTHETIC_COMPANIES for c in named)):
         # "Should Armada keep a share of the lane?" is a question about the split, so every carrier on the
         # lane stays in the comparison (plus the named one if it has no history there).
         companies = list(lane["carriers"]) + [c for c in named if c not in lane["carriers"]]
@@ -501,7 +501,7 @@ def verify_claim(claim: dict, evidence: dict[str, dict]) -> tuple[bool, str]:
         if len(n) >= 2 and n not in digits_src:
             return False, f"number {num} is not in the cited source"
     where = f"scorecard row {ev['id']}" if ev.get("source") == "scorecard" else (
-        f"{'Armada synthetic profile' if ev.get('synthetic') else ev['company'] + ' 10-K'} p.{ev['page']}")
+        f"{ev['company'] + (' synthetic profile' if ev.get('synthetic') else ' 10-K')} p.{ev['page']}")
     return True, f"supported by {where}"
 
 
@@ -619,13 +619,15 @@ def financial_health(company: str, metrics: list[dict]) -> dict:
 
 
 def _round_shares(raw: dict[str, float], step: float = 5.0) -> dict[str, float]:
-    """Round to `step`% and make the total exactly 100 (largest remainders win)."""
+    """Round to `step`% (largest remainders win). The total is 100, or less when the caps cannot fill the lane:
+    shares are never inflated past their caps, and the rest stays unassigned."""
     if not raw:
         return {}
     total = sum(raw.values()) or 1
-    scaled = {k: v / total * 100 / step for k, v in raw.items()}
+    target = min(100.0, round(total))
+    scaled = {k: v / total * target / step for k, v in raw.items()}
     base = {k: int(v) for k, v in scaled.items()}
-    left = int(round(100 / step)) - sum(base.values())
+    left = int(round(target / step)) - sum(base.values())
     for k in sorted(scaled, key=lambda k: -(scaled[k] - base[k]))[: max(left, 0)]:
         base[k] += 1
     return {k: v * step for k, v in base.items()}
@@ -728,6 +730,9 @@ def judge(state: dict) -> dict:
         r["role"] = "Primary" if i == 0 and r["share"] > 0 else ("Secondary" if r["share"] > 0 else "Backup / not awarded")
         r["score100"] = round(r["score"] * 100)
     split = " · ".join(f"{r['company']} {r['share']:.0f}%" for r in ranked if r["share"] > 0) or "no carrier qualifies"
+    unassigned = 100 - sum(r["share"] for r in rows)
+    if 0 < unassigned < 100:
+        split += f" · {unassigned:.0f}% left for the spot market (caps reached)"
     mandate = rows[0]["mandate"] if rows else "balanced"
     loads = f" of {plan['loads']:,} weekly loads" if plan.get("loads") else ""
     verdict = f"Award {plan['lane']}{loads}: {split} ({mandate} mandate)."
@@ -784,7 +789,9 @@ def _offline_memo(state: dict) -> str:
         lines.append(f"| {r['company']}{' *' if r['synthetic'] else ''} | {r['role']} | **{r['share']:.0f}%** | {loads} | "
                      f"{r['score100']} | {r['verified_for']} / {r['verified_against']} | {'; '.join(r['notes']) or '-'} |")
     if any(r["synthetic"] for r in alloc):
-        lines.append("\n\\* Armada is privately held; its evidence is a synthetic, self-reported profile, not an SEC filing.")
+        names = ", ".join(r["company"] for r in alloc if r["synthetic"])
+        lines.append(f"\n\\* {names}: privately held, so the evidence is a synthetic, illustrative profile, not an SEC filing "
+                     "and not data from the real company.")
     lines += ["", "### Lane scorecard, 2025 (synthetic shipper data)",
               "| Carrier | Tenders accepted / offered | Q4 peak acceptance | On-time | Rate per mile | Claims | Rows |",
               "|---|---|---|---|---|---|---|", *_lane_lines(state), ""]
@@ -807,7 +814,7 @@ def _offline_memo(state: dict) -> str:
     lines += ["### Open questions before award",
               "- Will each carrier commit to the awarded volume in writing, with a minimum tender acceptance in the contract?",
               "- What peak-season (Q4) surge capacity and surcharge does each carrier guarantee?",
-              "- Can Armada provide audited financial statements and a certificate of insurance before award?"]
+              "- Can the privately held providers provide audited financial statements and a certificate of insurance before award?"]
     if plan.get("off_lane"):
         lines.append(f"- {', '.join(plan['off_lane'])} has no tender history on this lane: run a pilot before awarding volume.")
     notes = state.get("review", {}).get("notes")

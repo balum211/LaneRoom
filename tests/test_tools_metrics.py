@@ -24,12 +24,15 @@ def test_compute_change():
     ("Old Dominion", "op_income", 1544.0, 1361.05),
     ("Old Dominion", "operating_ratio", 73.4, 75.2),
     ("Armada", "revenue", 389.0, 412.6),
+    ("Edge Logistics", "revenue", 596.5, 548.0),
+    ("First Star", "operating_ratio", 97.0, 96.8),
+    ("BlueGrace Logistics", "op_cash_flow", 22.0, 20.3),
 ])
 def test_quant_reads_filing_tables(company, key, fy24, fy25):
     m = {(x["company"], x["key"]): x for x in extract_metrics()}[(company, key)]
     assert m["fy2024"] == pytest.approx(fy24, abs=0.06) and m["fy2025"] == pytest.approx(fy25, abs=0.06)
     assert m["page"] > 0 and m["row_text"]
-    assert m["synthetic"] == (company == "Armada")
+    assert m["synthetic"] == (company not in ("J.B. Hunt", "C.H. Robinson", "Old Dominion"))
 
 
 def test_fmt_value():
@@ -49,6 +52,14 @@ def test_scorecard_lanes_and_summary():
 def test_allocation_respects_caps_and_floor():
     shares = _round_shares(allocate({"A": 0.9, "B": 0.3, "C": 0.5}, {"A": 60, "B": 60, "C": 25}, 10))
     assert sum(shares.values()) == 100 and shares["A"] <= 60 and shares["C"] <= 25 and shares["B"] >= 10
+
+
+def test_caps_are_never_inflated_and_synthetic_only_requests_keep_public_carriers():
+    from laneroom.agents import plan_lane
+
+    assert _round_shares(allocate({"A": 0.5, "B": 0.4}, {"A": 25, "B": 25}, 10)) == {"A": 25.0, "B": 25.0}
+    plan = plan_lane("Dallas to Atlanta: Edge Logistics or BlueGrace Logistics for the 500 weekly loads?")
+    assert "J.B. Hunt" in plan["companies"] and "Edge Logistics" in plan["companies"]
 
 
 def test_search_returns_citations_for_requested_company():

@@ -8,6 +8,8 @@ from __future__ import annotations
 
 from html import escape
 
+from . import maps
+
 CSS = """
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap');
@@ -95,7 +97,7 @@ div[data-testid="stVerticalBlockBorderWrapper"]{ border-radius:16px; }
 .hero .eyebrow{ display:inline-flex; align-items:center; gap:var(--s75); color:var(--gold2); font-weight:500; font-size:12px; line-height:16px;
   letter-spacing:.08em; text-transform:uppercase; padding:var(--s50) var(--s100); border-radius:9999px; background:var(--side);
   border:1px solid rgba(255,138,61,.3); }
-.hero h1{ font-size:48px; line-height:48px; font-weight:600; margin:var(--s300) 0 var(--s200); padding:0; max-width:680px;
+.hero h1{ font-size:44px; line-height:48px; font-weight:600; margin:var(--s300) 0 var(--s200); padding:0; max-width:680px;
   background:linear-gradient(90deg,#FFFFFF,#9B9B9B); -webkit-background-clip:text; background-clip:text; color:transparent; }
 .hero p{ color:var(--muted); font-size:18px; line-height:28px; max-width:680px; margin:0; }
 .chips{ display:flex; flex-wrap:wrap; gap:var(--s75); margin-top:var(--s400); }
@@ -238,7 +240,7 @@ div[data-testid="stVerticalBlockBorderWrapper"]{ border-radius:16px; }
 .metric, .claim{ transform-style:preserve-3d; }
 
 /* ---------- hero with a 3D cube ---------- */
-.hero{ display:grid; grid-template-columns:minmax(0,1fr) 260px; gap:var(--s400); align-items:center; position:relative; overflow:hidden; }
+.hero{ display:grid; grid-template-columns:minmax(0,1.05fr) minmax(300px,1fr); gap:var(--s400); align-items:center; position:relative; overflow:hidden; }
 .hero h1{ background:linear-gradient(90deg,#FFFFFF 0%,#BAE6FD 55%,#FDBA74 100%); -webkit-background-clip:text; background-clip:text; }
 .scene{ width:260px; height:260px; perspective:900px; display:grid; place-items:center; }
 .cube{ position:relative; width:140px; height:140px; transform-style:preserve-3d; animation:cube 18s linear infinite; }
@@ -252,7 +254,7 @@ div[data-testid="stVerticalBlockBorderWrapper"]{ border-radius:16px; }
 .scene .shadow{ position:absolute; width:150px; height:24px; margin-top:220px; border-radius:50%;
   background:radial-gradient(ellipse, rgba(56,189,248,.45), transparent 70%); filter:blur(4px); }
 @keyframes cube{ from{ transform:rotateX(-22deg) rotateY(0deg); } to{ transform:rotateX(-22deg) rotateY(360deg); } }
-@media (max-width: 900px){ .hero{ grid-template-columns:1fr; } .scene{ display:none; } .bg3d .orb, .bg3d .ring{ display:none; } }
+@media (max-width: 900px){ .hero{ grid-template-columns:1fr; } .scene{ display:none; } .lanecard{ grid-template-columns:1fr; } .bg3d .orb, .bg3d .ring{ display:none; } }
 @media (prefers-reduced-motion: reduce){
   .bg3d .aurora, .bg3d .floor, .bg3d .orb, .bg3d .ring, .cube{ animation:none !important; }
 }
@@ -265,6 +267,51 @@ div[data-testid="stVerticalBlockBorderWrapper"]{ border-radius:16px; }
 .gauge .role{ font-size:12px; line-height:16px; color:var(--muted); margin-top:var(--s50); }
 .gauge .loads{ font-size:12px; color:var(--muted); font-family:var(--mono); }
 .syn-note{ margin-top:var(--s200); font-size:12px; line-height:16px; color:#FFD6B0; display:flex; gap:var(--s75); align-items:center; }
+
+/* ---------- logistics visuals (LaneRoom) ---------- */
+.lrmap{ width:100%; height:auto; display:block; overflow:visible; }
+.lrmap .usdots circle{ fill:rgba(125,211,252,.2); }
+.lanecard .lrmap{ border-radius:14px; background:rgba(4,19,27,.45); overflow:hidden; }
+.lrmap .route{ fill:none; stroke:rgba(255,138,61,.55); stroke-width:2; stroke-dasharray:6 7; animation:dash 2.2s linear infinite; }
+.lrmap .lane-route{ fill:none; stroke-linecap:round; opacity:.85; }
+.lrmap .city{ fill:#EAF6FF; stroke:#04131B; stroke-width:2; } .lrmap .city.hub{ fill:#FFB27A; }
+.lrmap .pulse{ fill:none; stroke:rgba(255,178,122,.6); stroke-width:2; transform-box:fill-box; transform-origin:center; animation:pulse 2.4s var(--ease) infinite; }
+.lrmap .clabel{ fill:#C9DCE6; font-size:19px; font-weight:500; paint-order:stroke; stroke:#04131B; stroke-width:4px; }
+@keyframes dash{ to{ stroke-dashoffset:-26; } }
+@keyframes pulse{ 0%{ transform:scale(.6); opacity:1; } 100%{ transform:scale(2.2); opacity:0; } }
+.hero-map{ position:relative; }
+.hero-map .cap{ position:absolute; right:0; bottom:-6px; font-size:12px; color:var(--dim); }
+.badge{ display:inline-grid; place-items:center; position:relative; border-radius:10px; color:#04131B; font-weight:700;
+  font-family:var(--mono) !important; letter-spacing:-.02em; flex-shrink:0; box-shadow:inset 0 -3px 0 rgba(0,0,0,.18); }
+.badge i{ position:absolute; right:-6px; bottom:-6px; font-size:13px; width:20px; height:20px; display:grid; place-items:center;
+  border-radius:9999px; background:#04131B; color:#EAF6FF; border:1px solid var(--line); }
+.roster{ display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:var(--s100); margin:var(--s75) 0 var(--s300); }
+.rcard{ display:flex; gap:var(--s100); align-items:center; padding:var(--s100) var(--s200); border-radius:14px; background:var(--panel);
+  border:1px solid var(--line); -webkit-backdrop-filter:var(--glass-blur); backdrop-filter:var(--glass-blur); }
+.rcard .nm{ color:#fff; font-weight:600; font-size:14px; line-height:20px; } .rcard .md{ color:var(--muted); font-size:12px; line-height:16px; }
+.src{ display:inline-block; margin-top:2px; font-size:11px; line-height:14px; padding:0 6px; border-radius:9999px; border:1px solid var(--line); color:var(--muted); }
+.src.syn{ color:#FFD6B0; border-color:rgba(255,138,61,.4); background:rgba(255,138,61,.1); }
+.road{ position:relative; height:46px; margin:var(--s100) 0 var(--s300); border-radius:12px; overflow:hidden;
+  background:linear-gradient(180deg,#0B1F29,#081820); border:1px solid var(--line); }
+.road:before{ content:""; position:absolute; left:0; right:0; top:22px; height:3px;
+  background:repeating-linear-gradient(90deg, rgba(255,210,122,.75) 0 28px, transparent 28px 52px); animation:lanes 1.1s linear infinite; }
+.road .rv{ position:absolute; top:9px; left:-80px; width:68px; height:28px; animation:drive 14s linear infinite; }
+.road .rv.b{ animation-delay:-7s; animation-duration:18s; top:12px; }
+.road .tag{ position:absolute; right:10px; top:11px; z-index:2; background:#081820; padding:2px 8px; border-radius:6px; border:1px solid var(--line); font-size:12px; color:var(--dim); font-family:var(--mono) !important; }
+@keyframes lanes{ to{ background-position:-52px 0; } }
+@keyframes drive{ from{ transform:translateX(0); } to{ transform:translateX(1500px); } }
+.lanecard{ display:grid; grid-template-columns:minmax(0,1.35fr) minmax(260px,1fr); gap:var(--s300); align-items:center; }
+.lanecard .ttl{ display:flex; align-items:center; gap:var(--s75); color:var(--gold2); font-weight:500; font-size:12px; letter-spacing:.08em; text-transform:uppercase; }
+.lanecard h3{ margin:var(--s50) 0 var(--s50); font-size:22px; line-height:28px; color:#fff; }
+.lanecard .sub{ color:var(--muted); font-size:13px; margin-bottom:var(--s200); }
+.lrow{ display:grid; grid-template-columns:auto minmax(0,1fr) auto; gap:var(--s100); align-items:center; padding:var(--s75) 0; border-top:1px solid var(--line); }
+.lrow .nm{ color:#fff; font-weight:600; font-size:14px; } .lrow .md{ color:var(--muted); font-size:12px; }
+.lrow .sh{ font-family:var(--mono) !important; font-weight:600; font-size:18px; text-align:right; color:#fff; }
+.lrow .sh small{ display:block; font-size:11px; color:var(--muted); font-weight:400; }
+.lrow .mbar{ height:6px; border-radius:9999px; background:var(--raise); margin-top:6px; overflow:hidden; }
+.lrow .mbar i{ display:block; height:100%; border-radius:9999px; }
+.lanecard .note{ color:var(--dim); font-size:11px; margin-top:var(--s100); }
+@media (prefers-reduced-motion: reduce){ .lrmap .route, .lrmap .pulse, .road:before, .road .rv{ animation:none !important; } }
 </style>
 """
 
@@ -283,7 +330,7 @@ PIPELINE = ["guard", "planner", "researcher", "quant", "cost", "service", "rebut
 LABELS = {"guard": "Guardrail", "planner": "Planner", "researcher": "Researcher", "quant": "Quant", "cost": "Cost",
           "service": "Resilience", "rebuttal": "Rebuttal", "verifier": "Verifier", "revise": "Revise", "judge": "Judge",
           "writer": "Writer", "human_review": "You", "finalize": "Saved", "refuse": "Refused"}
-CARRIER_COLORS = {"J.B. Hunt": "#FF8A3D", "C.H. Robinson": "#5EB8FF", "Old Dominion": "#2FD08A", "Armada": "#C4A1FF"}
+CARRIER_COLORS = {name: p["color"] for name, p in maps.PROVIDERS.items()}  # validated categorical palette
 
 
 def icon(name: str, fill: bool = False) -> str:
@@ -300,13 +347,10 @@ def section(ico: str, text: str) -> str:
 
 
 def hero() -> str:
-    chips = [("files", "3 carrier 10‑Ks", "FY2025"), ("table", "Lane scorecard", "synthetic"),
+    chips = [("truck", "7 carriers", "3 public · 4 private"), ("files", "3 carrier 10‑Ks", "FY2025"), ("table", "Lane scorecard", "synthetic"),
              ("graph", "8 agents", "on LangGraph"), ("plugs-connected", "MCP", "tool server"),
              ("seal-check", "Verified", "citations"), ("user-check", "Human", "approval")]
     chip_html = "".join(f'<div class="chip">{icon(i)} <b>{b}</b> {t}</div>' for i, b, t in chips)
-    faces = [("f1 g", "truck"), ("f2", "scales"), ("f3", "package"), ("f4", "map-pin"), ("f5", "seal-check"),
-             ("f6", "train")]
-    cube = "".join(f'<div class="f {cls}">{icon(name, True)}</div>' for cls, name in faces)
     return f"""
 <div class="hero">
   <div>
@@ -316,7 +360,7 @@ def hero() -> str:
     claim and recommend how to split the lane's loads. You approve the award.</p>
     <div class="chips">{chip_html}</div>
   </div>
-  <div class="scene" aria-hidden="true"><div class="cube">{cube}</div><div class="shadow"></div></div>
+  <div class="hero-map">{maps.network_svg("hero")}<div class="cap">Scorecard lanes · schematic</div></div>
 </div>"""
 
 
@@ -350,15 +394,17 @@ def verdict(judge: dict) -> str:
         meta = (f'<span>{icon("check-circle")} {lm["acceptance_pct"]}% accept</span><span>{icon("clock")} {lm["on_time_pct"]}% on time</span>'
                 f'<span>{icon("currency-dollar")} ${lm["rate_per_mile"]:.2f}/mi</span>') if lm else f'<span>{icon("info")} no lane history</span>'
         color = CARRIER_COLORS.get(r["company"], "#FF8A3D")
-        gauges.append(f"""<div class="gauge{' off' if not r['share'] else ''}"><div class="co">{escape(r['company'])}{syn}</div>
+        gauges.append(f"""<div class="gauge{' off' if not r['share'] else ''}"><div class="co"><span style="display:flex;gap:10px;align-items:center">{badge(r['company'], 30)}{escape(r['company'])}</span>{syn}</div>
 <div class="score" style="color:{color}">{r['share']:.0f}%<span> of loads</span></div>{loads}
 <div class="bar"><i style="width:{r['score100']}%;background:{color}"></i></div>
 <div class="role">{escape(r['role'])} · fit {r['score100']}/100 · {r['verified_for']} for / {r['verified_against']} against</div>
 <div class="meta">{meta}</div></div>""")
     note = ""
     if any(r.get("synthetic") for r in alloc):
-        note = (f'<div class="syn-note">{icon("warning")} Armada is privately held: its evidence is a synthetic, self-reported '
-                'profile, so its share is capped. The lane scorecard is synthetic demo data for every carrier.</div>')
+        names = ", ".join(escape(r["company"]) for r in alloc if r.get("synthetic"))
+        note = (f'<div class="syn-note">{icon("warning")} {names}: privately held, so the evidence is a synthetic, '
+                'illustrative profile (not data from the real company) and each share is capped. The lane scorecard is '
+                'synthetic demo data for every carrier.</div>')
     return f"""<div class="card verdict"><div><div class="label">{icon("scales")} Recommended tender allocation · {escape(judge.get('mandate', ''))} mandate</div>
 <h2>{escape(judge.get('verdict', ''))}</h2></div><div class="alloc">{bar}</div><div class="gauges">{''.join(gauges)}</div>{note}</div>"""
 
@@ -400,7 +446,7 @@ def lane_grid(lane_metrics: list[dict]) -> str:
     cards = []
     for m in lane_metrics:
         color = CARRIER_COLORS.get(m["carrier"], "#FF8A3D")
-        cards.append(f"""<div class="metric"><div class="lbl"><span style="color:{color};font-weight:600">{escape(m['carrier'])}</span>
+        cards.append(f"""<div class="metric"><div class="lbl"><span style="display:flex;gap:8px;align-items:center;color:#fff;font-weight:600">{badge(m['carrier'], 24)}{escape(m['carrier'])}</span>
 <span class="pill cite">{escape(m['rows'][0])}–{escape(m['rows'][-1])}</span></div>
 <div class="val">{m['acceptance_pct']}%</div>
 <div class="prev">tender acceptance · {m['tenders_accepted']:,} of {m['tenders_offered']:,}</div>
@@ -446,7 +492,7 @@ def review_header() -> str:
 
 def footer() -> str:
     return ('<div class="foot"><span>LaneRoom · Team 24</span><span>·</span><span>LangGraph, LangChain, MCP, Chroma, BM25 and Streamlit</span>'
-            '<span>·</span><span>Public 10‑K data plus synthetic scorecard and Armada profile · education only</span></div>')
+            '<span>·</span><span>Public 10‑K data plus synthetic scorecard and private-provider profiles · education only</span></div>')
 
 MEMO_CSS = """
 <style>
@@ -462,3 +508,57 @@ MEMO_CSS = """
 .st-key-memo_paper hr{ border-color:#DDD5C2; }
 </style>
 """
+
+
+MODE_ICON = {"train": "train", "graph": "graph", "package": "package", "truck": "truck", "stack": "stack"}
+
+
+def badge(company: str, size: int = 36) -> str:
+    """Original monogram badge per carrier (colour + initials + mode icon). Not the company's real logo."""
+    p = maps.PROVIDERS.get(company, maps.FALLBACK)
+    return (f'<span class="badge" title="{escape(company)} · {escape(p["mode"])}" style="width:{size}px;height:{size}px;'
+            f'background:{p["color"]};font-size:{max(10, int(size * .38))}px">{escape(p["mono"])}{icon(MODE_ICON[p["icon"]], True)}</span>')
+
+
+def roster(companies) -> str:
+    cards = []
+    for c in companies:
+        p = maps.PROVIDERS.get(c, maps.FALLBACK)
+        syn = "syn" if "synthetic" in p["source"] else ""
+        cards.append(f'<div class="rcard">{badge(c, 38)}<div><div class="nm">{escape(c)}</div><div class="md">{escape(p["mode"])}</div>'
+                     f'<span class="src {syn}">{escape(p["source"])}</span></div></div>')
+    return f'<div class="roster">{"".join(cards)}</div>'
+
+
+_TRUCK_SVG = ('<svg class="rv{cls}" viewBox="0 0 68 28" aria-hidden="true"><rect x="1" y="3" width="42" height="18" rx="2" fill="{c}"/>'
+              '<path d="M45 8h11l9 8v5H45z" fill="{c}"/><rect x="49" y="10" width="7" height="5" rx="1" fill="#04131B" opacity=".6"/>'
+              '<circle cx="12" cy="23" r="4" fill="#0B1F29" stroke="#9DBBCB" stroke-width="2"/><circle cx="34" cy="23" r="4" fill="#0B1F29" '
+              'stroke="#9DBBCB" stroke-width="2"/><circle cx="56" cy="23" r="4" fill="#0B1F29" stroke="#9DBBCB" stroke-width="2"/>'
+              '<text x="22" y="16" text-anchor="middle" font-size="9" font-weight="700" fill="#04131B" font-family="monospace">{t}</text></svg>')
+
+
+def road(label: str = "") -> str:
+    """Animated highway strip with two trucks, used as a section divider."""
+    t1 = _TRUCK_SVG.format(cls="", c="#FF8A3D", t="LANE")
+    t2 = _TRUCK_SVG.format(cls=" b", c="#3987e5", t="ROOM")
+    return f'<div class="road" aria-hidden="true">{t1}{t2}<span class="tag">{escape(label)}</span></div>'
+
+
+def lane_card(judge: dict, plan: dict) -> str:
+    alloc = judge.get("allocation", [])
+    lane_id = plan.get("lane_id", "")
+    rows = []
+    for r in alloc:
+        p = maps.PROVIDERS.get(r["company"], maps.FALLBACK)
+        loads = f'<small>{r["loads"]:,} loads / wk</small>' if r.get("loads") is not None else f'<small>{escape(r["role"])}</small>'
+        rows.append(f'<div class="lrow">{badge(r["company"], 32)}<div><div class="nm">{escape(r["company"])}</div>'
+                    f'<div class="md">{escape(p["mode"])}{" · synthetic" if r.get("synthetic") else ""}</div>'
+                    f'<div class="mbar"><i style="width:{r["share"]:.0f}%;background:{p["color"]}"></i></div></div>'
+                    f'<div class="sh">{r["share"]:.0f}%{loads}</div></div>')
+    loads = f' · {plan["loads"]:,} loads / week' if plan.get("loads") else ""
+    note = ("Schematic routes. Line width and truck count follow each carrier&#39;s share; mileage is a "
+            "great-circle estimate.")
+    return (f'<div class="card lanecard"><div>{maps.lane_svg(lane_id, alloc, uid="lane-" + lane_id)}</div><div>'
+            f'<div class="ttl">{icon("map-trifold")} Route map</div><h3>{escape(plan.get("lane", ""))}</h3>'
+            f'<div class="sub">{escape(plan.get("mode", ""))} · {escape(maps.lane_distance(lane_id))}{loads}</div>'
+            f'{"".join(rows)}<div class="note">{note}</div></div></div>')
