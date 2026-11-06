@@ -10,6 +10,16 @@ import streamlit as st
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT / "src"))
 
+# Chroma needs SQLite >= 3.35. Some hosted Linux images ship an older one; use pysqlite3 there if it is installed.
+try:
+    import sqlite3
+
+    if sqlite3.sqlite_version_info < (3, 35, 0):
+        __import__("pysqlite3")
+        sys.modules["sqlite3"] = sys.modules.pop("pysqlite3")
+except ImportError:
+    pass
+
 from laneroom import config, ui  # noqa: E402
 from laneroom.graph import NODE_LABELS, LaneRoom  # noqa: E402
 from laneroom.memory import MANDATES, MemoryStore  # noqa: E402
