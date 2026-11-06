@@ -1,0 +1,28 @@
+# Demo video script (about 3 minutes)
+
+**Setup before recording**
+1. `run.bat` (or `streamlit run app.py`), wait for the page to load.
+2. Run the first scenario once so the index is warm, then refresh.
+3. Sidebar: name `demo`, mandate **balanced**, turn on **Stress test: plant a false claim**.
+4. Optional: add an API key to `.env` so the Agent log shows real token and cost numbers. For a local model, use the
+   Ollama lines in `.env.example`. For LangSmith traces, set `LANGSMITH_TRACING=true` and `LANGSMITH_API_KEY`.
+5. Record the browser window with Windows `Win + Alt + R` (Xbox Game Bar) or OBS / Loom.
+
+| Time | On screen | Say |
+|---|---|---|
+| 0:00 to 0:15 | App title | "We're Team 24. This is LaneRoom, an AI tender committee that tells a shipper how to split a freight lane between carriers, with every number cited." |
+| 0:15 to 0:30 | Click **Dallas→Atlanta 500 loads**, then **Convene committee** | "One request in: 500 weekly dry-van loads, Dallas to Atlanta. A guardrail checks it, and a Planner picks the lane, the carriers and the load count, then splits the work into capacity, cost, financial health, service and risk." |
+| 0:30 to 0:55 | Pipeline: Researcher and Quant finish | "The Researcher searches J.B. Hunt's, C.H. Robinson's and Old Dominion's FY2025 10-Ks with hybrid search, over an MCP server if we want, and re-searches weak results. Armada is private, so its document is a synthetic profile, and the lane scorecard is synthetic shipper data. The Quant reads revenue, operating income and cash flow straight from the filings' tables." |
+| 0:55 to 1:20 | **Debate** tab: Cost and Resilience columns, rebuttal | "Two advocates argue: Cost wants the cheapest rate per mile, Resilience wants acceptance and peak-season capacity. Then they rebut each other." |
+| 1:20 to 1:40 | The red "rejected" claim C0 and its replacement | "We planted a false claim: J.B. Hunt accepted 100 percent of tenders at a dollar fifteen a mile. The Verifier checked the scorecard row, rejected it, and the advocate replaced it with a supported one." |
+| 1:40 to 2:05 | Verdict card with the allocation bar, then **Scorecard & metrics**, **Memo**, **Evidence** | "The Judge turns verified evidence into an award: 60 percent J.B. Hunt, and the rest split between C.H. Robinson and Armada. No carrier gets more than 60 percent, everyone qualified keeps backup volume, and Armada is capped because its data is unaudited. The memo footnotes every claim to a 10-K page or a scorecard row." |
+| 2:05 to 2:20 | Switch mandate to **service-first**, pick **Peak surge**, convene again | "Change the shipper's mandate in memory to service-first, and the peak-season award shifts toward Old Dominion's on-time service." |
+| 2:20 to 2:35 | **Agent log** tab, then **Approve allocation** | "Every agent is traced with time, LLM calls, tokens and cost. A human approves before anything is saved, and approvals go into long-term memory." |
+| 2:35 to 2:50 | **Evaluation** tab | "On our eval: 100 percent of final claims verified, the planted claim caught every time, 17 of 17 filing figures exact, and every allocation follows the tender rules." |
+| 2:50 to 3:00 | **Course map** tab | "And this maps Weeks 1 to 5 of the course to LaneRoom. Code is on GitHub. Thanks!" |
+
+Tips
+- The whole committee takes about 15 to 30 seconds on a laptop.
+- Say clearly that the scorecard and Armada are synthetic; the 10-K figures are real.
+- The Agent log shows 0 tokens and $0 with offline agents. Say "offline agents need no API key, so this run is free",
+  or record with an API key to show real numbers.

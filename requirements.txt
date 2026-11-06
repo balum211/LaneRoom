@@ -1,0 +1,16 @@
+# Agents + orchestration
+langgraph>=1.0
+langchain-core>=1.0
+langchain-openai>=1.0
+# Retrieval (reused from our Week 2 FilingSight project)
+langchain-chroma>=1.0
+langchain-text-splitters>=1.0
+chromadb>=1.0          # vector store + bundled ONNX all-MiniLM-L6-v2 embeddings (no PyTorch)
+rank-bm25>=0.2.2
+pymupdf>=1.24          # only needed to rebuild the index from the PDFs
+numpy>=1.26
+python-dotenv>=1.0
+# MCP server (FastMCP API)
+mcp>=1.2,<2
+# UI
+streamlit>=1.50,<2
