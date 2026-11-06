@@ -30,7 +30,7 @@ flowchart LR
 
 | Agent | What it does | Tools |
 |---|---|---|
-| Guardrail | Blocks prompt injection, off-topic requests and carriers outside the knowledge base (Schneider, Werner, XPO…); flags stock questions; notes that Armada's data is synthetic | rules |
+| Guardrail | Blocks prompt injection, off-topic requests and carriers outside the knowledge base (Schneider, Werner, XPO…); flags stock questions; notes which providers' data is synthetic (Armada, Edge Logistics, First Star, BlueGrace Logistics) | rules |
 | Planner | Detects the lane (Dallas→Atlanta, national LTL, peak surge, Chicago→LA), the providers and the weekly load count, and splits the request into capacity/reliability, cost, financial health, service fit and risk sub-questions per provider | LLM or rules |
 | Researcher | Runs every sub-question as a hybrid search (Chroma dense + BM25 + RRF + rerank) in parallel, re-searches weak results with a reformulated query, and adds the lane's scorecard rows | `search_filings` (in-process or over **MCP**), `lane_scorecard` |
 | Quant | Reads revenue, operating income, net income, operating cash flow and operating ratio from each 10-K's tables (page-cited) and derives operating margin; computes tender acceptance, Q4 peak acceptance, on-time %, rate per mile and claims % per carrier on the lane | `key_metrics`, `lane_scorecard`, `compute_change` |
@@ -70,3 +70,10 @@ service-first), preferred KPIs, the incumbent carrier and summaries of approved 
 **Two agent modes.** With `NEBIUS_API_KEY` (or `OPENAI_API_KEY`) the Planner, both advocates, Rebuttal, Verifier
 judge and Writer are LLM calls. Without a key, deterministic offline agents run the same graph, so the demo, tests
 and CI never depend on an API. Any LLM failure falls back to the offline agent for that step.
+
+**Logistics UI.** The hero is a dot-matrix US route map with trucks (and a train on the intermodal lane) moving
+along every scorecard lane. After a run, a route card draws the awarded lane with one coloured route per carrier,
+whose width and truck count follow its share, next to loads per week. A "Network map" tab shows the same arcs on
+real geography (pydeck on a CARTO basemap). Carriers appear as original monogram badges with a mode icon, not their
+real logos. Carrier colours use a categorical palette validated for colour-blind separation and contrast on the
+dark surfaces (`src/laneroom/maps.py`, `src/laneroom/ui.py`).

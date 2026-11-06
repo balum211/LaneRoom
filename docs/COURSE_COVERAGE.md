@@ -22,7 +22,7 @@ during the demo. **✅ shown** = visible in the app or eval. **◐ partial** = p
 
 | Topic | Status | Where in LaneRoom |
 |---|---|---|
-| Chunking, embeddings, vector store | ✅ | Semantic chunks of the J.B. Hunt, C.H. Robinson and Old Dominion FY2025 10-Ks plus the synthetic Armada profile, Chroma with all-MiniLM-L6-v2 (reused from our Week 2 FilingSight project via LaneRoom) |
+| Chunking, embeddings, vector store | ✅ | Semantic chunks of the J.B. Hunt, C.H. Robinson and Old Dominion FY2025 10-Ks plus synthetic profiles for the four private carriers (Armada, Edge Logistics, First Star, BlueGrace Logistics), Chroma with all-MiniLM-L6-v2 (reused from our Week 2 FilingSight project via LaneRoom) |
 | Hybrid search (BM25 + dense), RRF, reranking | ✅ | Researcher's `search_filings` tool |
 | Metadata filtering | ✅ | Provider, Item, page and a synthetic flag on every chunk. Searches filter by provider (tickers and typos such as ODLF resolve) |
 | Context engineering: what goes in, ordering, compression | ✅ | Each agent gets only its evidence pack (ids, company, page, item, text), capped per passage. Retrieved text is sanitised before it reaches a prompt |

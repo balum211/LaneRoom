@@ -2,7 +2,7 @@
 
 Agents: **offline (no API key)** · generated 2026-11-06 12:49
 
-> Data note: carrier financials come from the public FY2025 10-Ks. The lane scorecard (tender acceptance, on-time %, rate per mile, claims %) and the Armada profile are **synthetic** demo data.
+> Data note: carrier financials come from the public FY2025 10-Ks. The lane scorecard (tender acceptance, on-time %, rate per mile, claims %) and the private-carrier profiles (Armada, Edge Logistics, First Star, BlueGrace Logistics) are **synthetic** demo data, not real company data.
 
 ## Headline
 

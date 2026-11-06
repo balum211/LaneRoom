@@ -45,7 +45,7 @@ from laneroom.observability import load_feedback, run_totals  # noqa: E402
 from laneroom.tools import search_filings  # noqa: E402
 
 # Values exactly as printed in the filings (USD thousands -> millions), FY2024 then FY2025.
-# Armada's are from its SYNTHETIC profile, checked the same way.
+# The private carriers' values come from their SYNTHETIC profiles, checked the same way.
 EXPECTED_METRICS = {
     ("J.B. Hunt", "revenue"): (12087.204, 11999.096), ("J.B. Hunt", "op_income"): (831.225, 865.069),
     ("J.B. Hunt", "net_income"): (570.886, 598.282), ("J.B. Hunt", "op_cash_flow"): (1483.156, 1678.272),
@@ -207,7 +207,7 @@ def write_report(res: dict) -> str:
         "# LaneRoom evaluation", "",
         f"Agents: **{res['agents']}** · generated {res['generated']}", "",
         "> Data note: carrier financials come from the public FY2025 10-Ks. The lane scorecard (tender acceptance, "
-        "on-time %, rate per mile, claims %) and the Armada profile are **synthetic** demo data.", "",
+        "on-time %, rate per mile, claims %) and the private-carrier profiles (Armada, Edge Logistics, First Star, BlueGrace Logistics) are **synthetic** demo data, not real company data.", "",
         "## Headline", "",
         "| Metric | Result | Target |", "|---|---|---|",
         f"| Citation faithfulness (verified claims in final memos) | **{pct(c['citation_faithfulness'])}** | ≥ 95% |",
