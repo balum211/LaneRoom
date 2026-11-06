@@ -247,3 +247,114 @@ def google_maps_url(lane_id: str, api_key: str = "", embed: bool = True) -> str:
         return url
     daddr = "+to:".join(quote_plus(s) for s in stops[1:])
     return f"https://maps.google.com/maps?saddr={quote_plus(stops[0])}&daddr={daddr}&output=embed"
+
+
+# ---------------------------------------------------------------- real-map lane view (Leaflet)
+def _bezier(a: tuple, b: tuple, bend: float, offset: float, n: int = 48) -> list[list[float]]:
+    """Quadratic curve from a to b (lon, lat) bowed sideways by bend * length + offset degrees; returns [lat, lon]."""
+    (x1, y1), (x2, y2) = a, b
+    dx, dy = x2 - x1, y2 - y1
+    length = math.hypot(dx, dy) or 1.0
+    nx, ny = -dy / length, dx / length
+    k = bend * length + offset
+    cx, cy = (x1 + x2) / 2 + nx * k, (y1 + y2) / 2 + ny * k
+    pts = []
+    for i in range(n + 1):
+        t = i / n
+        x = (1 - t) ** 2 * x1 + 2 * (1 - t) * t * cx + t * t * x2
+        y = (1 - t) ** 2 * y1 + 2 * (1 - t) * t * cy + t * t * y2
+        pts.append([round(y, 4), round(x, 4)])
+    return pts
+
+
+def lane_routes_geo(lane_id: str, allocation: list[dict]) -> list[dict]:
+    """Per-carrier route lines in lat/lon for a real map: one bowed line per awarded carrier on point lanes,
+    one line per leg (coloured by a lead carrier) on network lanes."""
+    routes = LANE_ROUTES.get(lane_id, [])
+    awarded = [r for r in allocation if r.get("share", 0) > 0]
+    out = []
+    for ri, (a, b) in enumerate(routes):
+        pa, pb = CITIES[a], CITIES[b]
+        if len(routes) > 1:
+            r = awarded[ri % len(awarded)] if awarded else {"company": "", "share": 0}
+            out.append({"carrier": r["company"], "share": r.get("share", 0), "loads": r.get("loads"),
+                        "color": PROVIDERS.get(r["company"], FALLBACK)["color"], "leg": f"{a} → {b}",
+                        "pts": _bezier(pa, pb, 0.12, 0), "weight": 4, "trucks": 1,
+                        "kind": "truck"})
+            continue
+        n = len(awarded)
+        dist = math.hypot(pb[0] - pa[0], pb[1] - pa[1])
+        for i, r in enumerate(awarded):
+            off = (i - (n - 1) / 2) * dist * 0.07
+            out.append({"carrier": r["company"], "share": r["share"], "loads": r.get("loads"),
+                        "color": PROVIDERS.get(r["company"], FALLBACK)["color"], "leg": f"{a} → {b}",
+                        "pts": _bezier(pa, pb, 0.10, off), "weight": round(2.5 + r["share"] / 7, 1),
+                        "trucks": max(1, round(r["share"] / 20)),
+                        "kind": "train" if lane_id == "CHI-LAX" and r["company"] == "J.B. Hunt" else "truck"})
+    return out
+
+
+LEAFLET_HTML = """<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+html,body{margin:0;height:100%;background:#04131B;font-family:system-ui,Segoe UI,sans-serif}
+#m{position:absolute;inset:0;border-radius:14px;overflow:hidden;background:#04131B}
+.leaflet-container{background:#04131B}
+.city{color:#eaf6ff;font:600 12px system-ui;text-shadow:0 1px 3px #000,0 0 6px #000;white-space:nowrap}
+.leaflet-tooltip.lr{background:#0b2633;color:#eaf6ff;border:1px solid #1d4252;border-radius:8px;font:12px system-ui}
+.leaflet-tooltip.lr:before{display:none}
+.veh svg{filter:drop-shadow(0 0 3px rgba(0,0,0,.9))}
+</style></head><body><div id="m"></div><script>
+const D = __DATA__;
+const map = L.map('m', {zoomControl: true, scrollWheelZoom: false, attributionControl: true});
+const ESRI = 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/';
+L.tileLayer(ESRI + 'World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {maxZoom: 16,
+  attribution: 'Basemap &copy; Esri, HERE, Garmin, &copy; OpenStreetMap contributors'}).addTo(map);
+const all = [];
+const TRUCK = c => `<svg width="26" height="14" viewBox="-14 -7 28 14"><rect x="-13" y="-5" width="17" height="10" rx="1.5" fill="${c}" stroke="#04131B" stroke-width="1"/><path d="M5 -3 h4.5 l3.5 3.5 v4.5 h-8z" fill="${c}" stroke="#04131B" stroke-width="1"/><circle cx="-8" cy="5.5" r="2" fill="#04131B"/><circle cx="8" cy="5.5" r="2" fill="#04131B"/></svg>`;
+const TRAIN = c => `<svg width="30" height="14" viewBox="-16 -7 32 14"><rect x="-15" y="-5" width="13" height="9" rx="1.5" fill="${c}"/><rect x="0" y="-5" width="15" height="9" rx="2.5" fill="${c}"/><circle cx="-11" cy="5.5" r="1.8" fill="#04131B"/><circle cx="-5" cy="5.5" r="1.8" fill="#04131B"/><circle cx="4" cy="5.5" r="1.8" fill="#04131B"/><circle cx="11" cy="5.5" r="1.8" fill="#04131B"/></svg>`;
+const movers = [];
+D.routes.forEach((r, i) => {
+  L.polyline(r.pts, {color: '#04131B', weight: r.weight + 3, opacity: .85}).addTo(map);
+  const line = L.polyline(r.pts, {color: r.color, weight: r.weight, opacity: .95, lineCap: 'round'}).addTo(map);
+  const loads = r.loads != null ? ` · ${r.loads.toLocaleString()} loads/wk` : '';
+  line.bindTooltip(`<b>${r.carrier}</b> · ${Math.round(r.share)}%${loads}<br>${r.leg}`, {sticky: true, className: 'lr'});
+  r.pts.forEach(p => all.push(p));
+  for (let t = 0; t < r.trucks; t++) {
+    const icon = L.divIcon({className: 'veh', html: (r.kind === 'train' ? TRAIN : TRUCK)(r.color), iconSize: [26, 14], iconAnchor: [13, 7]});
+    movers.push({m: L.marker(r.pts[0], {icon, interactive: false}).addTo(map), pts: r.pts, phase: t / r.trucks + i * 0.11,
+                 speed: 1 / (D.routes.length > 1 ? 7000 : 9000)});
+  }
+});
+D.cities.forEach(c => {
+  L.circleMarker([c.lat, c.lon], {radius: c.hub ? 7 : 5, color: '#04131B', weight: 2, fillColor: '#FF8A3D', fillOpacity: 1}).addTo(map);
+  L.marker([c.lat, c.lon], {icon: L.divIcon({className: 'city', html: c.name, iconSize: null, iconAnchor: c.below ? [c.name.length * 3.5, -8] : c.left ? [c.name.length * 7 + 10, 8] : [-10, 8]}),
+            interactive: false}).addTo(map);
+});
+map.fitBounds(all, {padding: [34, 34]});
+function at(pts, f) {
+  const x = f * (pts.length - 1), i = Math.min(Math.floor(x), pts.length - 2), u = x - i;
+  return [pts[i][0] + (pts[i + 1][0] - pts[i][0]) * u, pts[i][1] + (pts[i + 1][1] - pts[i][1]) * u];
+}
+const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+function tick(now) {
+  movers.forEach(v => v.m.setLatLng(at(v.pts, reduce ? (v.phase % 1) : ((now * v.speed + v.phase) % 1))));
+  if (!reduce) requestAnimationFrame(tick);
+}
+requestAnimationFrame(tick);
+</script></body></html>"""
+
+
+def lane_map_html(lane_id: str, allocation: list[dict]) -> str:
+    """Self-contained Leaflet page: the lane on a real (Esri dark gray, keyless) basemap with one coloured route per carrier."""
+    import json
+
+    routes = LANE_ROUTES.get(lane_id, [])
+    names = sorted({c for r in routes for c in r})
+    hubs = set(LANE_HUBS.get(lane_id, [])) | ({routes[0][0], routes[0][1]} if len(routes) == 1 else set())
+    data = {"routes": lane_routes_geo(lane_id, allocation),
+            "cities": [{"name": c, "lon": CITIES[c][0], "lat": CITIES[c][1], "hub": c in hubs, "left": c in _LEFT_LABELS,
+                        "below": c == "Phoenix" and "Los Angeles" in names}
+                       for c in names]}
+    return LEAFLET_HTML.replace("__DATA__", json.dumps(data))

@@ -310,6 +310,9 @@ div[data-testid="stVerticalBlockBorderWrapper"]{ border-radius:16px; }
 .lrow .sh small{ display:block; font-size:11px; color:var(--muted); font-weight:400; }
 .lrow .mbar{ height:6px; border-radius:9999px; background:var(--raise); margin-top:6px; overflow:hidden; }
 .lrow .mbar i{ display:block; height:100%; border-radius:9999px; }
+.lanecard.side{ display:block; }
+.st-key-lanecard{ background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:var(--s300); margin-bottom:var(--s200); }
+.st-key-lanecard iframe{ border-radius:14px; }
 .lanecard .note{ color:var(--dim); font-size:11px; margin-top:var(--s100); }
 @media (prefers-reduced-motion: reduce){ .lrmap .route, .lrmap .pulse, .road:before, .road .rv{ animation:none !important; } }
 </style>
@@ -544,7 +547,8 @@ def road(label: str = "") -> str:
     return f'<div class="road" aria-hidden="true">{t1}{t2}<span class="tag">{escape(label)}</span></div>'
 
 
-def lane_card(judge: dict, plan: dict) -> str:
+def lane_card(judge: dict, plan: dict, side_only: bool = False) -> str:
+    """Route card: schematic SVG + carrier list, or (side_only) just the list beside a real map."""
     alloc = judge.get("allocation", [])
     lane_id = plan.get("lane_id", "")
     rows = []
@@ -556,9 +560,13 @@ def lane_card(judge: dict, plan: dict) -> str:
                     f'<div class="mbar"><i style="width:{r["share"]:.0f}%;background:{p["color"]}"></i></div></div>'
                     f'<div class="sh">{r["share"]:.0f}%{loads}</div></div>')
     loads = f' · {plan["loads"]:,} loads / week' if plan.get("loads") else ""
+    head = (f'<div class="ttl">{icon("map-trifold")} Route map</div><h3>{escape(plan.get("lane", ""))}</h3>'
+            f'<div class="sub">{escape(plan.get("mode", ""))} · {escape(maps.lane_distance(lane_id))}{loads}</div>')
+    if side_only:
+        note = ("Each carrier&#39;s route is drawn on a real map; line width and truck count follow its share. "
+                "Hover a route for its loads. Mileage is a great-circle estimate; the Google Maps driving route is below.")
+        return f'<div class="lanecard side">{head}{"".join(rows)}<div class="note">{note}</div></div>'
     note = ("Schematic routes. Line width and truck count follow each carrier&#39;s share; mileage is a "
             "great-circle estimate.")
     return (f'<div class="card lanecard"><div>{maps.lane_svg(lane_id, alloc, uid="lane-" + lane_id)}</div><div>'
-            f'<div class="ttl">{icon("map-trifold")} Route map</div><h3>{escape(plan.get("lane", ""))}</h3>'
-            f'<div class="sub">{escape(plan.get("mode", ""))} · {escape(maps.lane_distance(lane_id))}{loads}</div>'
-            f'{"".join(rows)}<div class="note">{note}</div></div></div>')
+            f'{head}{"".join(rows)}<div class="note">{note}</div></div></div>')

@@ -89,3 +89,18 @@ def test_armada_evidence_is_flagged_synthetic():
 
 def test_get_page_text():
     assert "75.2%" in get_page("Old Dominion", 48)
+
+
+def test_lane_map_html_has_one_route_per_awarded_carrier():
+    import json
+
+    from laneroom import maps
+
+    alloc = [{"company": "J.B. Hunt", "share": 60, "loads": 300}, {"company": "Armada", "share": 40, "loads": 200},
+             {"company": "First Star", "share": 0, "loads": 0}]
+    routes = maps.lane_routes_geo("DAL-HOU", alloc)
+    assert [r["carrier"] for r in routes] == ["J.B. Hunt", "Armada"]
+    assert routes[0]["pts"][0] == [maps.CITIES["Dallas"][1], maps.CITIES["Dallas"][0]]
+    html = maps.lane_map_html("DAL-HOU", alloc)
+    data = json.loads(html.split("const D = ")[1].split(";\n")[0])
+    assert {c["name"] for c in data["cities"]} == {"Dallas", "Houston"} and "leaflet" in html

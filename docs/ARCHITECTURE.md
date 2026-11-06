@@ -74,7 +74,8 @@ judge and Writer are LLM calls. Without a key, deterministic offline agents run 
 and CI never depend on an API. Any LLM failure falls back to the offline agent for that step.
 
 **Logistics UI.** The hero is a dot-matrix US route map with trucks (and a train on the intermodal lane) moving
-along every scorecard lane. After a run, a route card draws the awarded lane with one coloured route per carrier,
+along every scorecard lane. After a run, a route card draws the awarded lane on a real map (Leaflet on Esri's keyless dark basemap) with one
+coloured route per carrier and trucks moving along it,
 whose width and truck count follow its share, next to loads per week. A "Network map" tab shows the same arcs on
 real geography (pydeck on a CARTO basemap), and under the route card a Google Maps iframe shows the actual
 driving route (the official Maps Embed API when `GOOGLE_MAPS_API_KEY` is set, Google's keyless embed otherwise;

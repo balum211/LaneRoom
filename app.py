@@ -151,6 +151,21 @@ def run_stream(gen, box) -> None:
             box.update(label=f"{icon} {NODE_LABELS.get(t['node'], t['node'])} done")
 
 
+def lane_route_card(judge: dict, plan: dict) -> None:
+    """Route card: the lane on a real map (Leaflet, one coloured route per carrier) beside the carrier shares."""
+    from laneroom import maps
+
+    if not maps.LANE_ROUTES.get(plan.get("lane_id", "")):
+        st.markdown(ui.lane_card(judge, plan), unsafe_allow_html=True)
+        return
+    with st.container(key="lanecard"):
+        left, right = st.columns([1.35, 1], gap="large", vertical_alignment="center")
+        with left:
+            components.html(maps.lane_map_html(plan["lane_id"], judge.get("allocation", [])), height=470)
+        with right:
+            st.markdown(ui.lane_card(judge, plan, side_only=True), unsafe_allow_html=True)
+
+
 def google_route(plan: dict) -> None:
     """The lane on a real US road map (Google Maps), under the schematic carrier-share route card."""
     from laneroom import maps
@@ -211,7 +226,7 @@ with tab_room:
             if state.get("plan", {}).get("lane_note"):
                 st.warning(state["plan"]["lane_note"], icon="🗺️")
             st.markdown(ui.verdict(state.get("judge", {})), unsafe_allow_html=True)
-            st.markdown(ui.lane_card(state.get("judge", {}), state.get("plan", {})), unsafe_allow_html=True)
+            lane_route_card(state.get("judge", {}), state.get("plan", {}))
             google_route(state.get("plan", {}))
 
             t_debate, t_metrics, t_map, t_memo, t_evidence, t_trace = st.tabs(

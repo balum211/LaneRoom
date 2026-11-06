@@ -35,7 +35,7 @@ profiles: **Armada**, **Edge Logistics**, **First Star** and **BlueGrace Logisti
 
 ![Recommended tender allocation with the split bar and per-carrier fit](docs/screenshots/02_verdict.png)
 
-| Route map: one coloured route per carrier, width = share | Network map on real geography | Carrier roster with badges |
+| Route map: one coloured route per carrier on a real map, width = share | Network map on real geography | Carrier roster with badges |
 |---|---|---|
 | ![route map](docs/screenshots/12_route_map.png) | ![network map](docs/screenshots/13_network_map.png) | ![roster](docs/screenshots/11_roster.png) |
 
@@ -64,7 +64,7 @@ profiles: **Armada**, **Edge Logistics**, **First Star** and **BlueGrace Logisti
 | Decision | A Judge scores each carrier from lane KPIs, financial health and the verified debate, weighted by the shipper's mandate, then allocates 100% of loads under tender rules (≤ 60% per carrier, ≥ 10% backup share, 80% acceptance floor, 25% cap on synthetic-only evidence) |
 | Human in the loop | LangGraph `interrupt()` pauses before anything is awarded: approve, request changes, or ask a follow-up |
 | Memory | Thread memory in the LangGraph checkpointer; long-term shipper memory (cost-first / balanced / service-first mandate, preferred KPIs, incumbent carrier, past awards) that changes the Judge's weighting |
-| Logistics UI | Animated US route map with moving trucks (and a train on the intermodal lane), a per-lane route card where each carrier's route width follows its share, a **Google Maps** driving route for the lane (official Embed API with `GOOGLE_MAPS_API_KEY`, keyless embed otherwise), a pydeck arc map on real geography, carrier badges and a carrier roster |
+| Logistics UI | Animated US route map with moving trucks (and a train on the intermodal lane), a per-lane route card that draws each carrier's route on a real map (Leaflet, Esri dark basemap, no key) with moving trucks and width following its share, a **Google Maps** driving route for the lane (official Embed API with `GOOGLE_MAPS_API_KEY`, keyless embed otherwise), a pydeck arc map on real geography, carrier badges and a carrier roster |
 | Guardrails | Prompt-injection, scope and unknown-carrier checks on input, injection stripping on retrieved text, no stock advice in output, synthetic data labelled everywhere, disclaimer always added |
 
 ```mermaid
