@@ -1,6 +1,6 @@
 {
   "agents": "offline (no API key)",
-  "generated": "2026-11-06 14:36",
+  "generated": "2026-11-06 23:24",
   "retrieval": {
     "questions": 25,
     "hit_at_5": 1.0,
@@ -442,7 +442,7 @@
     "runs": [
       {
         "question": "Dallas\u2192Atlanta dry van: allocate 500 weekly loads",
-        "seconds": 31.2,
+        "seconds": 48.95,
         "llm_calls": 0,
         "tokens": 0,
         "cost_usd": 0.0,
@@ -455,11 +455,29 @@
         "allocation_valid": true,
         "cites_both": true,
         "cited_sources": 10,
-        "verdict": "Award Dallas, TX to Atlanta, GA of 500 weekly loads: J.B. Hunt 45% \u00b7 C.H. Robinson 20% \u00b7 Armada 15% \u00b7 BlueGrace Logistics 10% \u00b7 Edge Logistics 10% (balanced mandate)."
+        "verdict": "Award Dallas, TX to Atlanta, GA of 500 weekly loads: J.B. Hunt 45% \u00b7 C.H. Robinson 20% \u00b7 Armada 15% \u00b7 BlueGrace Logistics 10% \u00b7 Edge Logistics 10% (balanced mandate).",
+        "value": {
+          "lane": "Dallas, TX to Atlanta, GA",
+          "annual_loads": 26000,
+          "net_savings": 303624,
+          "net_savings_pct": 0.64,
+          "roi_pct": 1144,
+          "payback_days": 29,
+          "drivers": {
+            "review": 39270,
+            "backhaul": 350270,
+            "onboarding": 467026,
+            "mix": -527941
+          },
+          "run_cost": 25001,
+          "acceptance_uplift": 1.38,
+          "on_time_uplift": 0.88,
+          "hours_saved": 462.0
+        }
       },
       {
         "question": "LTL national contract: ODFL vs CHRW",
-        "seconds": 17.33,
+        "seconds": 25.63,
         "llm_calls": 0,
         "tokens": 0,
         "cost_usd": 0.0,
@@ -472,11 +490,29 @@
         "allocation_valid": true,
         "cites_both": true,
         "cited_sources": 9,
-        "verdict": "Award National LTL contract: Old Dominion 60% \u00b7 C.H. Robinson 40% (balanced mandate)."
+        "verdict": "Award National LTL contract: Old Dominion 60% \u00b7 C.H. Robinson 40% (balanced mandate).",
+        "value": {
+          "lane": "National LTL contract",
+          "annual_loads": 35204,
+          "net_savings": 605935,
+          "net_savings_pct": 0.47,
+          "roi_pct": 2284,
+          "payback_days": 15,
+          "drivers": {
+            "review": 39270,
+            "backhaul": 962442,
+            "onboarding": 1283256,
+            "mix": -1654033
+          },
+          "run_cost": 25001,
+          "acceptance_uplift": 0.38,
+          "on_time_uplift": 0.53,
+          "hours_saved": 462.0
+        }
       },
       {
         "question": "Peak season surge capacity: who should get the extra Q4 loads?",
-        "seconds": 41.63,
+        "seconds": 60.21,
         "llm_calls": 0,
         "tokens": 0,
         "cost_usd": 0.0,
@@ -489,11 +525,29 @@
         "allocation_valid": true,
         "cites_both": true,
         "cited_sources": 10,
-        "verdict": "Award Peak season surge (national): J.B. Hunt 35% \u00b7 Old Dominion 30% \u00b7 C.H. Robinson 15% \u00b7 Edge Logistics 10% \u00b7 Armada 10% (balanced mandate)."
+        "verdict": "Award Peak season surge (national): J.B. Hunt 35% \u00b7 Old Dominion 30% \u00b7 C.H. Robinson 15% \u00b7 Edge Logistics 10% \u00b7 Armada 10% (balanced mandate).",
+        "value": {
+          "lane": "Peak season surge (national)",
+          "annual_loads": 45604,
+          "net_savings": 3461514,
+          "net_savings_pct": 3.33,
+          "roi_pct": 13047,
+          "payback_days": 3,
+          "drivers": {
+            "review": 39270,
+            "backhaul": 844036,
+            "onboarding": 1125381,
+            "mix": 1477828
+          },
+          "run_cost": 25001,
+          "acceptance_uplift": 3.39,
+          "on_time_uplift": 1.68,
+          "hours_saved": 462.0
+        }
       },
       {
         "question": "Chicago to Los Angeles intermodal: allocate 300 weekly loads",
-        "seconds": 25.22,
+        "seconds": 37.15,
         "llm_calls": 0,
         "tokens": 0,
         "cost_usd": 0.0,
@@ -506,11 +560,29 @@
         "allocation_valid": true,
         "cites_both": true,
         "cited_sources": 10,
-        "verdict": "Award Chicago, IL to Los Angeles, CA of 300 weekly loads: J.B. Hunt 60% \u00b7 C.H. Robinson 15% \u00b7 Edge Logistics 15% \u00b7 First Star 10% (balanced mandate)."
+        "verdict": "Award Chicago, IL to Los Angeles, CA of 300 weekly loads: J.B. Hunt 60% \u00b7 C.H. Robinson 15% \u00b7 Edge Logistics 15% \u00b7 First Star 10% (balanced mandate).",
+        "value": {
+          "lane": "Chicago, IL to Los Angeles, CA",
+          "annual_loads": 15600,
+          "net_savings": 3873214,
+          "net_savings_pct": 5.91,
+          "roi_pct": 14599,
+          "payback_days": 2,
+          "drivers": {
+            "review": 39270,
+            "backhaul": 459243,
+            "onboarding": 612324,
+            "mix": 2787378
+          },
+          "run_cost": 25001,
+          "acceptance_uplift": 2.71,
+          "on_time_uplift": 1.32,
+          "hours_saved": 462.0
+        }
       },
       {
         "question": "Should Armada keep a share of the Dallas to Atlanta lane next year?",
-        "seconds": 32.59,
+        "seconds": 45.18,
         "llm_calls": 0,
         "tokens": 0,
         "cost_usd": 0.0,
@@ -523,11 +595,29 @@
         "allocation_valid": true,
         "cites_both": true,
         "cited_sources": 10,
-        "verdict": "Award Dallas, TX to Atlanta, GA: J.B. Hunt 45% \u00b7 C.H. Robinson 20% \u00b7 Armada 15% \u00b7 BlueGrace Logistics 10% \u00b7 Edge Logistics 10% (balanced mandate)."
+        "verdict": "Award Dallas, TX to Atlanta, GA: J.B. Hunt 45% \u00b7 C.H. Robinson 20% \u00b7 Armada 15% \u00b7 BlueGrace Logistics 10% \u00b7 Edge Logistics 10% (balanced mandate).",
+        "value": {
+          "lane": "Dallas, TX to Atlanta, GA",
+          "annual_loads": 34424,
+          "net_savings": 397375,
+          "net_savings_pct": 0.63,
+          "roi_pct": 1498,
+          "payback_days": 23,
+          "drivers": {
+            "review": 39270,
+            "backhaul": 463757,
+            "onboarding": 618342,
+            "mix": -698994
+          },
+          "run_cost": 25001,
+          "acceptance_uplift": 1.38,
+          "on_time_uplift": 0.88,
+          "hours_saved": 462.0
+        }
       },
       {
         "question": "LTL national contract: compare Old Dominion, C.H. Robinson and Armada on service and cost",
-        "seconds": 22.99,
+        "seconds": 26.17,
         "llm_calls": 0,
         "tokens": 0,
         "cost_usd": 0.0,
@@ -540,11 +630,29 @@
         "allocation_valid": true,
         "cites_both": true,
         "cited_sources": 9,
-        "verdict": "Award National LTL contract: Old Dominion 55% \u00b7 C.H. Robinson 35% \u00b7 Armada 10% (balanced mandate)."
+        "verdict": "Award National LTL contract: Old Dominion 55% \u00b7 C.H. Robinson 35% \u00b7 Armada 10% (balanced mandate).",
+        "value": {
+          "lane": "National LTL contract",
+          "annual_loads": 35204,
+          "net_savings": 362969,
+          "net_savings_pct": 0.28,
+          "roi_pct": 1368,
+          "payback_days": 25,
+          "drivers": {
+            "review": 39270,
+            "backhaul": 960125,
+            "onboarding": 1280167,
+            "mix": -1891593
+          },
+          "run_cost": 25001,
+          "acceptance_uplift": 1.9,
+          "on_time_uplift": 1.36,
+          "hours_saved": 462.0
+        }
       },
       {
         "question": "Dallas to Atlanta: should Edge Logistics or BlueGrace Logistics take more of the 500 weekly loads?",
-        "seconds": 31.85,
+        "seconds": 44.75,
         "llm_calls": 0,
         "tokens": 0,
         "cost_usd": 0.0,
@@ -557,11 +665,29 @@
         "allocation_valid": true,
         "cites_both": true,
         "cited_sources": 10,
-        "verdict": "Award Dallas, TX to Atlanta, GA of 500 weekly loads: J.B. Hunt 45% \u00b7 C.H. Robinson 20% \u00b7 Armada 15% \u00b7 BlueGrace Logistics 10% \u00b7 Edge Logistics 10% (balanced mandate)."
+        "verdict": "Award Dallas, TX to Atlanta, GA of 500 weekly loads: J.B. Hunt 45% \u00b7 C.H. Robinson 20% \u00b7 Armada 15% \u00b7 BlueGrace Logistics 10% \u00b7 Edge Logistics 10% (balanced mandate).",
+        "value": {
+          "lane": "Dallas, TX to Atlanta, GA",
+          "annual_loads": 26000,
+          "net_savings": 303624,
+          "net_savings_pct": 0.64,
+          "roi_pct": 1144,
+          "payback_days": 29,
+          "drivers": {
+            "review": 39270,
+            "backhaul": 350270,
+            "onboarding": 467026,
+            "mix": -527941
+          },
+          "run_cost": 25001,
+          "acceptance_uplift": 1.38,
+          "on_time_uplift": 0.88,
+          "hours_saved": 462.0
+        }
       },
       {
         "question": "Chicago to Los Angeles intermodal: J.B. Hunt vs First Star vs Edge Logistics",
-        "seconds": 17.72,
+        "seconds": 41.87,
         "llm_calls": 0,
         "tokens": 0,
         "cost_usd": 0.0,
@@ -574,7 +700,60 @@
         "allocation_valid": true,
         "cites_both": true,
         "cited_sources": 10,
-        "verdict": "Award Chicago, IL to Los Angeles, CA: J.B. Hunt 60% \u00b7 Edge Logistics 25% \u00b7 First Star 15% (balanced mandate)."
+        "verdict": "Award Chicago, IL to Los Angeles, CA: J.B. Hunt 60% \u00b7 Edge Logistics 25% \u00b7 First Star 15% (balanced mandate).",
+        "value": {
+          "lane": "Chicago, IL to Los Angeles, CA",
+          "annual_loads": 21580,
+          "net_savings": 4580531,
+          "net_savings_pct": 5.1,
+          "roi_pct": 17265,
+          "payback_days": 2,
+          "drivers": {
+            "review": 39270,
+            "backhaul": 634796,
+            "onboarding": 846395,
+            "mix": 3085070
+          },
+          "run_cost": 25001,
+          "acceptance_uplift": 2.4,
+          "on_time_uplift": 1.04,
+          "hours_saved": 462.0
+        }
+      },
+      {
+        "question": "Dallas\u2192Houston dry van: allocate 500 weekly loads",
+        "seconds": 75.29,
+        "llm_calls": 0,
+        "tokens": 0,
+        "cost_usd": 0.0,
+        "research_retries": 0,
+        "claims_final": 11,
+        "supported_final": 11,
+        "injected_caught": true,
+        "retries": 1,
+        "balanced": true,
+        "allocation_valid": true,
+        "cites_both": true,
+        "cited_sources": 10,
+        "verdict": "Award Dallas, TX to Houston, TX of 500 weekly loads: J.B. Hunt 40% \u00b7 Armada 25% \u00b7 C.H. Robinson 15% \u00b7 Edge Logistics 10% \u00b7 First Star 10% (balanced mandate).",
+        "value": {
+          "lane": "Dallas, TX to Houston, TX",
+          "annual_loads": 26000,
+          "net_savings": 242146,
+          "net_savings_pct": 1.26,
+          "roi_pct": 913,
+          "payback_days": 36,
+          "drivers": {
+            "review": 39270,
+            "backhaul": 139465,
+            "onboarding": 185954,
+            "mix": -97543
+          },
+          "run_cost": 25001,
+          "acceptance_uplift": 1.14,
+          "on_time_uplift": 0.91,
+          "hours_saved": 462.0
+        }
       }
     ],
     "citation_faithfulness": 1.0,
@@ -582,8 +761,8 @@
     "balanced_rate": 1.0,
     "allocation_valid_rate": 1.0,
     "cites_both_rate": 1.0,
-    "median_seconds": 28.2,
-    "p95_seconds": 41.6,
+    "median_seconds": 44.8,
+    "p95_seconds": 75.3,
     "avg_tokens": 0,
     "avg_cost_usd": 0.0,
     "avg_cited_sources": 9.8
@@ -621,7 +800,7 @@
     "runs": [
       {
         "question": "Dallas\u2192Atlanta dry van: allocate 500 weekly loads",
-        "seconds": 20.0,
+        "seconds": 26.69,
         "route": "refused",
         "cited_sources": 5,
         "allocation": false,
@@ -629,7 +808,7 @@
       },
       {
         "question": "LTL national contract: ODFL vs CHRW",
-        "seconds": 5.4,
+        "seconds": 7.51,
         "route": "refused",
         "cited_sources": 4,
         "allocation": false,
@@ -637,7 +816,7 @@
       },
       {
         "question": "Peak season surge capacity: who should get the extra Q4 loads?",
-        "seconds": 11.38,
+        "seconds": 17.8,
         "route": "refused",
         "cited_sources": 5,
         "allocation": false,
@@ -645,7 +824,7 @@
       },
       {
         "question": "Chicago to Los Angeles intermodal: allocate 300 weekly loads",
-        "seconds": 11.43,
+        "seconds": 11.62,
         "route": "refused",
         "cited_sources": 5,
         "allocation": false,
@@ -653,7 +832,7 @@
       },
       {
         "question": "Should Armada keep a share of the Dallas to Atlanta lane next year?",
-        "seconds": 1.6,
+        "seconds": 1.72,
         "route": "refused",
         "cited_sources": 4,
         "allocation": false,
@@ -661,7 +840,7 @@
       },
       {
         "question": "LTL national contract: compare Old Dominion, C.H. Robinson and Armada on service and cost",
-        "seconds": 5.13,
+        "seconds": 5.83,
         "route": "refused",
         "cited_sources": 5,
         "allocation": false,
@@ -669,7 +848,7 @@
       },
       {
         "question": "Dallas to Atlanta: should Edge Logistics or BlueGrace Logistics take more of the 500 weekly loads?",
-        "seconds": 2.46,
+        "seconds": 2.61,
         "route": "refused",
         "cited_sources": 5,
         "allocation": false,
@@ -677,7 +856,15 @@
       },
       {
         "question": "Chicago to Los Angeles intermodal: J.B. Hunt vs First Star vs Edge Logistics",
-        "seconds": 3.74,
+        "seconds": 4.73,
+        "route": "refused",
+        "cited_sources": 5,
+        "allocation": false,
+        "both_lenses": false
+      },
+      {
+        "question": "Dallas\u2192Houston dry van: allocate 500 weekly loads",
+        "seconds": 12.45,
         "route": "refused",
         "cited_sources": 5,
         "allocation": false,
@@ -687,6 +874,6 @@
     "allocation_rate": 0.0,
     "both_lenses_rate": 0.0,
     "avg_cited_sources": 4.8,
-    "median_seconds": 5.3
+    "median_seconds": 7.5
   }
 }

@@ -21,7 +21,7 @@ try:
 except ImportError:
     pass
 
-from laneroom import config, ui  # noqa: E402
+from laneroom import config, ui, value  # noqa: E402
 from laneroom.graph import NODE_LABELS, LaneRoom  # noqa: E402
 from laneroom.memory import MANDATES, MemoryStore  # noqa: E402
 from laneroom.metrics import fmt_value  # noqa: E402
@@ -107,39 +107,6 @@ with st.sidebar:
         st.caption("No approved awards yet. Approve one and it is remembered here.")
 
 
-def route_deck(plan: dict, allocation: list[dict]):
-    """pydeck ArcLayer of the lane on a dark basemap; None if pydeck is unavailable."""
-    try:
-        import pydeck as pdk
-    except ImportError:
-        return None
-    from laneroom import maps
-
-    awarded = [r for r in allocation if r.get("share", 0) > 0] or allocation
-    routes = maps.LANE_ROUTES.get(plan.get("lane_id", ""), [])
-    rows = []
-    for i, (a, b) in enumerate(routes):
-        legs = awarded if len(routes) == 1 else [awarded[i % len(awarded)]] if awarded else []
-        for j, r in enumerate(legs):
-            hexc = maps.PROVIDERS.get(r["company"], maps.FALLBACK)["color"].lstrip("#")
-            rgb = [int(hexc[k:k + 2], 16) for k in (0, 2, 4)]
-            rows.append({"from": a, "to": b, "carrier": r["company"], "share": r["share"], "src": list(maps.CITIES[a]),
-                         "dst": list(maps.CITIES[b]), "color": rgb, "width": 2 + r["share"] / 8,
-                         "height": 0.25 + 0.18 * j})
-    cities = [{"name": c, "pos": list(maps.CITIES[c])} for c in {c for r in routes for c in r}]
-    layers = [
-        pdk.Layer("ArcLayer", rows, get_source_position="src", get_target_position="dst", get_source_color="color",
-                  get_target_color="color", get_width="width", get_height="height", pickable=True),
-        pdk.Layer("ScatterplotLayer", cities, get_position="pos", get_radius=26000, get_fill_color=[234, 246, 255],
-                  get_line_color=[4, 19, 27], line_width_min_pixels=2, stroked=True),
-        pdk.Layer("TextLayer", cities, get_position="pos", get_text="name", get_size=13, get_color=[201, 220, 230],
-                  get_pixel_offset=[0, -16]),
-    ]
-    view = pdk.ViewState(latitude=37.5, longitude=-95.5, zoom=3.15, pitch=35)
-    return pdk.Deck(layers=layers, initial_view_state=view, map_provider="carto", map_style="dark",
-                    tooltip={"text": "{carrier}: {share}% · {from} → {to}"})
-
-
 def run_stream(gen, box) -> None:
     for node, update in gen:
         if node == "__interrupt__":
@@ -182,6 +149,37 @@ def google_route(plan: dict) -> None:
                f"[Open in Google Maps]({maps.google_maps_url(lane_id, embed=False)})")
 
 
+def assumptions() -> value.Assumptions:
+    """Value-model assumptions: defaults, overridden by the inputs in the Business value tab."""
+    base = value.Assumptions()
+    vals = {f: type(getattr(base, f))(ss.get(f"va_{f}", getattr(base, f))) for f in value.LABELS}
+    return value.Assumptions(**vals)
+
+
+def value_tab(v: dict, claims: list[dict]) -> None:
+    if not v:
+        st.info("No scorecard history for this lane, so there is nothing to value.")
+        return
+    st.markdown(ui.section("piggy-bank", f"Business value · {v['lane']}"), unsafe_allow_html=True)
+    st.markdown(ui.value_drivers(v), unsafe_allow_html=True)
+    live = [c for c in claims if c["status"] != "dropped"]
+    st.markdown(ui.section("chart-line-up", "Service and risk benefits"), unsafe_allow_html=True)
+    st.markdown(ui.value_benefits(v, sum(c["status"] == "supported" for c in live), len(live)), unsafe_allow_html=True)
+    st.markdown(ui.section("lightbulb", "Why an AI tender committee"), unsafe_allow_html=True)
+    st.markdown(ui.why_committee(), unsafe_allow_html=True)
+    with st.expander("Assumptions: change them to see your own numbers", icon=":material/tune:"):
+        base = value.Assumptions()
+        cols = st.columns(3)
+        for i, (f, label) in enumerate(value.LABELS.items()):
+            d = getattr(base, f)
+            cols[i % 3].number_input(label, value=d, min_value=0 if isinstance(d, int) else 0.0,
+                                     step=1 if isinstance(d, int) else (0.01 if d < 1 else 0.5 if d < 100 else 50.0), key=f"va_{f}")
+    st.caption("Illustrative: carrier rates, acceptance, on-time and claims come from the SYNTHETIC lane scorecard, and "
+               "the drivers use the assumptions above. ROI = net savings ÷ (platform + LLM + human review cost). The award "
+               "mix compares landed cost (rate, spot fallback on rejected tenders, claims, late loads) with an even split "
+               "and turns negative when the mandate buys service. See docs/BUSINESS_VALUE.md.")
+
+
 # ---------------------------------------------------------------- main
 st.markdown(ui.hero(), unsafe_allow_html=True)
 tab_room, tab_eval, tab_how, tab_course = st.tabs(["Committee", "Evaluation", "How it works", "Course map"])
@@ -206,6 +204,7 @@ with tab_room:
             run_stream(room.start(question, ss.thread, user_id=user_id, mode=mode, inject_faulty=inject, via_mcp=via_mcp,
                                   profile={"mandate": mandate, "preferred_metrics": prefs, "incumbent": incumbent}), box)
             tot = run_totals(ss.trace)
+            ss.run_seconds = time.perf_counter() - t0
             box.update(label=f"✅ Committee finished in {time.perf_counter() - t0:.1f}s · {tot['llm_calls']} LLM calls · "
                              f"{tot['tokens_in'] + tot['tokens_out']:,} tokens · ${tot['cost_usd']:.4f}",
                        state="complete", expanded=False)
@@ -227,12 +226,20 @@ with tab_room:
             if state.get("plan", {}).get("lane_note"):
                 st.warning(state["plan"]["lane_note"], icon="🗺️")
             st.markdown(ui.verdict(state.get("judge", {})), unsafe_allow_html=True)
+            tot_cost = run_totals(ss.trace)["cost_usd"]
+            a = assumptions()
+            if tot_cost and "va_llm_cost_per_run" not in ss:
+                a.llm_cost_per_run = tot_cost
+            val = value.evaluate(state.get("plan", {}), state.get("judge", {}), a, ss.get("run_seconds"))
+            st.markdown(ui.value_strip(val), unsafe_allow_html=True)
             lane_route_card(state.get("judge", {}), state.get("plan", {}))
             google_route(state.get("plan", {}))
 
-            t_debate, t_metrics, t_map, t_memo, t_evidence, t_trace = st.tabs(
-                ["Debate", "Scorecard & metrics", "Network map", "Memo", "Evidence", "Agent log"])
+            t_value, t_debate, t_metrics, t_map, t_memo, t_evidence, t_trace = st.tabs(
+                ["Business value", "Debate", "Scorecard & metrics", "Network map", "Memo", "Evidence", "Agent log"])
             all_claims = state.get("cost_claims", []) + state.get("service_claims", [])
+            with t_value:
+                value_tab(val, all_claims)
             with t_debate:
                 dropped = [c for c in all_claims if c["status"] == "dropped"]
                 if dropped:
@@ -258,11 +265,15 @@ with tab_room:
                 st.caption("Financial health read by the Quant agent straight from each 10-K's tables. The page chip is the "
                            "source page. Private providers' figures come from synthetic, illustrative profiles.")
             with t_map:
-                deck = route_deck(state.get("plan", {}), state.get("judge", {}).get("allocation", []))
-                if deck is not None:
-                    st.pydeck_chart(deck, height=460)
-                st.caption("Real geography (pydeck arcs on a CARTO basemap). Arc width follows each carrier's share; colours "
-                           "match the badges. Lanes are schematic metro-to-metro routes, not actual carrier networks.")
+                from laneroom import maps
+
+                plan = state.get("plan", {})
+                if maps.LANE_ROUTES.get(plan.get("lane_id", "")):
+                    components.html(maps.lane_map_html(plan["lane_id"], state.get("judge", {}).get("allocation", []),
+                                                       network=True), height=560)
+                st.caption("Street map of the whole scorecard network (Esri World Street Map; roads from OpenStreetMap via "
+                           "OSRM). Dashed grey lines are the other lanes on file; the awarded lane is drawn per carrier, with "
+                           "its trucks driving the real highway. Hover a line for the lane, carrier and road miles.")
             with t_memo:
                 with st.container(key="memo_paper"):
                     st.markdown(state["memo"])

@@ -344,6 +344,12 @@ function shifted(pts, px) {
   });
 }
 const lines = [], movers = [], all = [];
+(D.context || []).forEach(c => {
+  L.polyline(c.pts, {color: '#ffffff', weight: 5, opacity: .7}).addTo(map);
+  L.polyline(c.pts, {color: '#5b6f7c', weight: 2.5, opacity: .85, dashArray: '6 5'}).addTo(map)
+    .bindTooltip(`${c.lane}<br>${c.leg} &middot; ${c.miles.toLocaleString()} road mi`, {sticky: true, className: 'lr'});
+  if (D.fit_all) c.pts.forEach(p => all.push(p));
+});
 D.routes.forEach((r, i) => {
   r.pts.forEach(p => all.push(p));
   const casing = L.polyline(r.pts, {color: '#ffffff', weight: r.weight + 3, opacity: .9}).addTo(map);
@@ -375,6 +381,14 @@ function layout() {
   movers.forEach(v => { v.path = shifted(v.r.pts, v.r.slot * GAP).map(p => [p.lat ?? p[0], p.lng ?? p[1]]); });
 }
 map.on('zoomend', layout); layout();
+// Inside a hidden Streamlit tab the frame starts at 0x0: re-fit once it has a real size.
+let fitted = document.getElementById('m').clientWidth > 0;
+new ResizeObserver(() => {
+  const el = document.getElementById('m');
+  if (!el.clientWidth || !el.clientHeight) return;
+  map.invalidateSize();
+  if (!fitted) { map.fitBounds(all, {padding: [30, 30]}); fitted = true; layout(); }
+}).observe(document.getElementById('m'));
 // Trucks move at a steady map speed: walk the path by cumulative length, not by point index.
 function cum(path) { const c = [0]; for (let i = 1; i < path.length; i++) c.push(c[i - 1] + Math.hypot(path[i][0] - path[i - 1][0], path[i][1] - path[i - 1][1])); return c; }
 function at(path, f) {
@@ -394,7 +408,7 @@ requestAnimationFrame(tick);
 </script></body></html>"""
 
 
-def lane_map_html(lane_id: str, allocation: list[dict]) -> str:
+def lane_map_html(lane_id: str, allocation: list[dict], network: bool = False) -> str:
     """Self-contained Leaflet page: the lane on a street map (Esri World Street Map, keyless), one coloured route per
     carrier along the real road, and that carrier's trucks driving it."""
     import json
@@ -405,4 +419,22 @@ def lane_map_html(lane_id: str, allocation: list[dict]) -> str:
     data = {"routes": lane_routes_geo(lane_id, allocation),
             "cities": [{"name": c, "lon": CITIES[c][0], "lat": CITIES[c][1], "hub": c in hubs, "left": c in _LEFT_LABELS,
                         "below": c == "Phoenix" and "Los Angeles" in names} for c in names]}
+    if network:  # every other scorecard lane as a dashed grey road route, map fitted to the whole network
+        from . import scorecard
+
+        own = {tuple(r) for r in routes}
+        seen, ctx = set(own), []
+        lane_names = {k: v["lane"] for k, v in scorecard.lanes().items()}
+        for other, legs in LANE_ROUTES.items():
+            for a, b in legs:
+                road = road_leg(a, b)
+                if (a, b) in seen or not road:
+                    continue
+                seen.add((a, b))
+                ctx.append({"lane": lane_names.get(other, other), "leg": f"{a} → {b}", "miles": road["miles"],
+                            "pts": road["pts"]})
+        allc = sorted({c for legs in LANE_ROUTES.values() for leg in legs for c in leg})
+        data["context"], data["fit_all"] = ctx, True
+        data["cities"] = [{"name": c, "lon": CITIES[c][0], "lat": CITIES[c][1], "hub": c in hubs or c in names,
+                           "left": c in _LEFT_LABELS, "below": c == "Phoenix"} for c in allc]
     return LEAFLET_HTML.replace("__DATA__", json.dumps(data))

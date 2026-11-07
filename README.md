@@ -35,7 +35,9 @@ profiles: **Armada**, **Edge Logistics**, **First Star** and **BlueGrace Logisti
 
 ![Recommended tender allocation with the split bar and per-carrier fit](docs/screenshots/02_verdict.png)
 
-| Route map: one coloured route per carrier on a real map, width = share | Network map on real geography | Carrier roster with badges |
+![Business value: net savings, ROI, payback and the drivers behind them](docs/screenshots/15_business_value.png)
+
+| Route map: one coloured route per carrier on a real map, width = share | Network map: every lane on a street map | Carrier roster with badges |
 |---|---|---|
 | ![route map](docs/screenshots/12_route_map.png) | ![network map](docs/screenshots/13_network_map.png) | ![roster](docs/screenshots/11_roster.png) |
 
@@ -53,6 +55,23 @@ profiles: **Armada**, **Edge Logistics**, **First Star** and **BlueGrace Logisti
 |---|---|
 | ![evaluation](docs/screenshots/09_evaluation.png) | ![course map](docs/screenshots/10_course_map.png) |
 
+## Business value: ROI and net savings
+
+Every award comes with a **Business value** view ([docs/BUSINESS_VALUE.md](docs/BUSINESS_VALUE.md)): net savings a
+year, ROI, payback and the drivers behind them, with every assumption editable in the app.
+
+| Driver | Why it pays |
+|---|---|
+| **Review time** | Weeks of procurement and legal 10-K reading become a cited memo in about a minute plus a 1.5 h human review (462 hours a year per lane) |
+| **Backhaul / spot speed** | Decisions in minutes win discounted backhaul and spot loads that expire before a days-long review ends |
+| **More bidders** | A new carrier is one more document, so more qualified carriers keep bidding and rates stay competitive |
+| **Award mix (landed cost)** | Rate + spot fallback on rejected tenders + claims + late loads, vs an even split. Shown honestly: negative when the mandate pays for service |
+| **Fewer errors, less bias** | Every claim cited and verified, the same allocation rules for every carrier, an audit trail and a human approval |
+
+Illustrative results (synthetic scorecard, default assumptions): **Dallas→Atlanta, 500 loads a week: $304K net a
+year (+0.6% of landed freight cost), 1,144% ROI, 29-day payback**; across the eight lanes about **$7.7M a year with
+a balanced mandate and $11.9M cost-first** (0.5% to 3.5% of freight cost).
+
 ## Why it is agentic, not just RAG
 
 | Capability | How LaneRoom does it |
@@ -64,7 +83,8 @@ profiles: **Armada**, **Edge Logistics**, **First Star** and **BlueGrace Logisti
 | Decision | A Judge scores each carrier from lane KPIs, financial health and the verified debate, weighted by the shipper's mandate, then allocates 100% of loads under tender rules (≤ 60% per carrier, ≥ 10% backup share, 80% acceptance floor, 25% cap on synthetic-only evidence) |
 | Human in the loop | LangGraph `interrupt()` pauses before anything is awarded: approve, request changes, or ask a follow-up |
 | Memory | Thread memory in the LangGraph checkpointer; long-term shipper memory (cost-first / balanced / service-first mandate, preferred KPIs, incumbent carrier, past awards) that changes the Judge's weighting |
-| Logistics UI | Animated US route map with moving trucks (and a train on the intermodal lane), a per-lane route card that draws each carrier's route on a real map (Leaflet on Esri's keyless street map) with each carrier's trucks driving the real highway route (OpenStreetMap road geometry from OSRM, saved by `scripts/make_routes.py`) and width following its share, a **Google Maps** driving route for the lane (official Embed API with `GOOGLE_MAPS_API_KEY`, keyless embed otherwise), a pydeck arc map on real geography, carrier badges and a carrier roster |
+| Logistics UI | Animated US route map with moving trucks (and a train on the intermodal lane), a per-lane route card that draws each carrier's route on a real map (Leaflet on Esri's keyless street map) with each carrier's trucks driving the real highway route (OpenStreetMap road geometry from OSRM, saved by `scripts/make_routes.py`) and width following its share, a **Google Maps** driving route for the lane (official Embed API with `GOOGLE_MAPS_API_KEY`, keyless embed otherwise), a Network map of every lane on the same street map, carrier badges and a carrier roster |
+| Business value | Net savings, ROI and payback per award from four drivers (review time, backhaul speed, more bidders, award mix) plus service and risk benefits, with editable assumptions (`src/laneroom/value.py`) |
 | Guardrails | Prompt-injection, scope and unknown-carrier checks on input, injection stripping on retrieved text, no stock advice in output, synthetic data labelled everywhere, disclaimer always added |
 
 ```mermaid
@@ -174,7 +194,7 @@ Tools: `search_filings`, `get_page`, `list_companies`, `lane_scorecard`, `key_me
 ## Test and evaluate
 
 ```bash
-pytest -q                          # 42 tests: guardrails, memory, Quant, scorecard, allocation, verifier, full graph, MCP, LLM paths
+pytest -q                          # 48 tests: guardrails, memory, Quant, scorecard, allocation, business value, maps, verifier, full graph, MCP, LLM paths
 python eval/run_eval.py            # full evaluation -> eval/results/summary.md
 python eval/run_eval.py --mode auto   # evaluate the LLM agents (needs a key)
 ```
@@ -188,12 +208,15 @@ src/laneroom/
   agents.py                Guard, Planner, Researcher, Quant, Cost and Resilience advocates, Rebuttal, Verifier, Revise,
                            Judge (allocation), Writer, Human review
   scorecard.py             synthetic shipper lane scorecard: lanes, rows as citable evidence, per-carrier summary
+  value.py                 business value: landed cost, value drivers, net savings, ROI, payback
+  maps.py                  lane geometry, street-map route card and network map (Leaflet), Google Maps links
   metrics.py               Quant: 10-K table figures + lane KPIs
   tools.py                 search_filings, get_page, lane_scorecard, compute_change (+ MCP client path)
   guardrails.py, memory.py, mcp_server.py, observability.py, prompts.py, llm.py, ui.py
 src/filingsight/           retrieval stack reused from our Week 2 RAG project (via DealRoom)
 data/raw/                  FY2025 10-K PDFs (EDGAR) + SYNTHETIC private-provider profiles (HTML source and PDF)
 data/scorecard/            SYNTHETIC lane scorecard CSV (scripts/make_scorecard.py)
+data/routes/               real road geometry per lane leg from OSRM / OpenStreetMap (scripts/make_routes.py)
 data/processed/            committed chunks + embeddings
 data/eval/                 25 labelled retrieval questions
 eval/run_eval.py           evaluation suite

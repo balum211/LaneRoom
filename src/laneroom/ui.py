@@ -310,6 +310,21 @@ div[data-testid="stVerticalBlockBorderWrapper"]{ border-radius:16px; }
 .lrow .sh small{ display:block; font-size:11px; color:var(--muted); font-weight:400; }
 .lrow .mbar{ height:6px; border-radius:9999px; background:var(--raise); margin-top:6px; overflow:hidden; }
 .lrow .mbar i{ display:block; height:100%; border-radius:9999px; }
+.usage.value .u i{ color:var(--cost); }
+.usage.value .u{ display:grid; grid-template-columns:auto 1fr; grid-template-rows:auto auto; column-gap:var(--s100); row-gap:2px; align-items:center; }
+.usage.value .u i{ grid-row:1 / span 2; font-size:20px; } .usage.value .u b{ white-space:nowrap; font-size:18px; } .usage.value .u span{ grid-column:2; line-height:16px; }
+.vcard{ display:flex; flex-direction:column; gap:2px; }
+.vrow{ display:grid; grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) 110px; gap:var(--s200); align-items:center; padding:var(--s100) 0; border-top:1px solid var(--line); }
+.vrow:first-child{ border-top:none; }
+.vrow .vn{ color:#fff; font-size:14px; font-weight:600; } .vrow .vn small{ display:block; color:var(--muted); font-weight:400; font-size:12px; }
+.vbar{ position:relative; height:12px; } .vbar .axis{ position:absolute; left:50%; top:-4px; bottom:-4px; width:1px; background:var(--line); }
+.vbar i{ position:absolute; top:0; height:100%; border-radius:4px; }
+.vrow .vv{ font-family:var(--mono) !important; font-weight:600; font-size:16px; text-align:right; color:var(--cost); } .vrow .vv.neg{ color:var(--bad); }
+.vrow.total{ border-top:1px solid var(--muted); margin-top:var(--s75); } .vrow.total .vv{ font-size:20px; }
+.whygrid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:var(--s200); margin:var(--s100) 0 var(--s300); }
+.why{ display:flex; flex-direction:column; gap:6px; padding:var(--s200); border-radius:14px; background:var(--panel); border:1px solid var(--line); }
+.why i{ color:var(--gold); font-size:22px; } .why b{ color:#fff; font-size:15px; } .why span{ color:var(--muted); font-size:13px; line-height:19px; }
+@media (max-width: 700px){ .vrow{ grid-template-columns:1fr 90px; } .vbar{ display:none; } }
 .lanecard.side{ display:block; }
 .st-key-lanecard{ background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:var(--s300); margin-bottom:var(--s200); }
 .st-key-lanecard iframe{ border-radius:14px; }
@@ -570,3 +585,82 @@ def lane_card(judge: dict, plan: dict, side_only: bool = False) -> str:
             "great-circle estimate.")
     return (f'<div class="card lanecard"><div>{maps.lane_svg(lane_id, alloc, uid="lane-" + lane_id)}</div><div>'
             f'{head}{"".join(rows)}<div class="note">{note}</div></div></div>')
+
+
+# ---------------------------------------------------------------- business value
+def _money(x: float) -> str:
+    sign = "-" if x < 0 else ""
+    x = abs(x)
+    return f"{sign}${x / 1e6:,.2f}M" if x >= 1e6 else f"{sign}${x / 1e3:,.0f}K" if x >= 1e3 else f"{sign}${x:,.0f}"
+
+
+def value_strip(v: dict) -> str:
+    """Headline business value under the verdict: net savings, ROI, payback and review cycle time."""
+    if not v:
+        return ""
+    pay = f"{v['payback_days']:.0f} days" if v.get("payback_days") is not None else "n/a"
+    cells = [("piggy-bank", _money(v["net_savings"]), "net savings / year"), ("trend-up", f"{v['roi_pct']:,.0f}%", "ROI"),
+             ("hourglass-medium", pay, "payback"), ("lightning", v["benefits"]["cycle"], f"review vs {v['benefits']['manual_cycle']} manual")]
+    return '<div class="usage value">' + "".join(
+        f'<div class="u">{icon(i)}<b>{val}</b><span>{label}</span></div>' for i, val, label in cells) + "</div>"
+
+
+def value_drivers(v: dict) -> str:
+    """Signed horizontal bars, one per value driver; the label always carries the number and sign."""
+    peak = max([abs(d["value"]) for d in v["drivers"]] + [abs(v["run_cost"]), 1])
+    rows = []
+    items = v["drivers"] + [{"name": "Cost of running the committee", "value": -v["run_cost"],
+                             "detail": "platform, hosting and LLM calls for this lane"}]
+    for d in items:
+        w = abs(d["value"]) / peak * 50
+        side = (f'left:50%;width:{w:.1f}%;background:var(--cost)' if d["value"] >= 0
+                else f'right:50%;width:{w:.1f}%;background:var(--bad)')
+        rows.append(f'<div class="vrow"><div class="vn">{escape(d["name"])}<small>{escape(d["detail"])}</small></div>'
+                    f'<div class="vbar"><span class="axis"></span><i style="{side}"></i></div>'
+                    f'<div class="vv {"neg" if d["value"] < 0 else ""}">{"+" if d["value"] >= 0 else ""}{_money(d["value"])}</div></div>')
+    total = (f'<div class="vrow total"><div class="vn">Net savings per year<small>{v["net_savings_pct"]:+.1f}% of the lane&#39;s '
+             f'landed freight cost · {v["annual_loads"]:,} loads a year · {v["miles"]:,.0f} mi</small></div><div></div>'
+             f'<div class="vv {"neg" if v["net_savings"] < 0 else ""}">{_money(v["net_savings"])}</div></div>')
+    return f'<div class="card vcard">{"".join(rows)}{total}</div>'
+
+
+def value_benefits(v: dict, verified: int, total: int) -> str:
+    b = v["benefits"]
+    cells = [
+        ("check-circle", f"{b['acceptance_uplift']:+.1f} pts", "tender acceptance vs even split"),
+        ("clock", f"{b['on_time_uplift']:+.1f} pts", "on-time delivery vs even split"),
+        ("truck", f"{b['late_loads_avoided']:+,.0f}", "late loads avoided a year"),
+        ("warning", f"{b['spot_loads_avoided']:+,.0f}", "loads kept off the spot market a year"),
+        ("shield-check", f"{verified}/{total}", "claims verified against a source"),
+        ("scales", f"≤ {b['max_share']:.0f}%", "largest single-carrier share"),
+        ("clock-user", f"{b['hours_saved']:,.0f} h", "procurement + legal hours saved a year"),
+        ("lightning", b["cycle"], f"request to recommendation (manual: {b['manual_cycle']})"),
+    ]
+    return '<div class="usage value">' + "".join(
+        f'<div class="u">{icon(i)}<b>{val}</b><span>{label}</span></div>' for i, val, label in cells) + "</div>"
+
+
+WHY = [
+    ("hourglass-medium", "Weeks become minutes",
+     "Procurement and legal no longer spend weeks reading carrier 10-Ks: the committee reads, computes and cites in "
+     "about a minute, and a person reviews and approves."),
+    ("scales", "Fewer errors, less bias",
+     "Every claim cites a 10-K page or scorecard row, a Verifier rejects unsupported ones, and the same rules (60% cap, "
+     "10% floor, acceptance floor) apply to every carrier, so no favourites."),
+    ("user-plus", "Add carriers in a day",
+     "A new carrier is one more document and scorecard row, not a new project, so more qualified carriers keep bidding "
+     "and rates stay competitive."),
+    ("lightning", "Backhaul and spot at market speed",
+     "Backhaul and spot tenders expire in minutes to hours; a decision in a minute wins discounted loads that a "
+     "days-long review misses."),
+    ("shield-check", "Resilience by design",
+     "Primary, secondary and backup carriers with capped shares mean one carrier's bad week does not stop the lane."),
+    ("notebook", "Audit trail and memory",
+     "Each award is a memo with footnotes, a trace of every agent step and a logged human decision; approved awards and "
+     "mandates are remembered for the next review."),
+]
+
+
+def why_committee() -> str:
+    cards = "".join(f'<div class="why">{icon(i)}<b>{escape(t)}</b><span>{escape(d)}</span></div>' for i, t, d in WHY)
+    return f'<div class="whygrid">{cards}</div>'

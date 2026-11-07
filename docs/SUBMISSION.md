@@ -14,7 +14,7 @@ Form: https://forms.gle/rYC7PCaDg1xj9ZVu8 · Deadline: **Thursday Nov 6, 2026, 1
 **One-line description (if the form asks):** LaneRoom is a multi-agent freight tender committee: a Planner,
 Researcher, Quant, Cost and Resilience advocates, a Verifier, a Judge and a Writer read carriers' SEC 10-Ks and a
 lane scorecard, debate cost against service, fact-check every claim and recommend a tender allocation % per carrier
-that a human approves, built with LangGraph, an MCP server, Streamlit and an evaluation suite.
+that a human approves, with the award's net savings, ROI and payback, built with LangGraph, an MCP server, Streamlit and an evaluation suite.
 
 **Data note to keep in every description:** J.B. Hunt, C.H. Robinson and Old Dominion figures come from their real
 FY2025 10-Ks. Armada, Edge Logistics, First Star and BlueGrace Logistics are privately held, so their profiles are
@@ -31,7 +31,8 @@ rate per mile, claims %) is synthetic demo data for all carriers.
 | 10-K and profile figures read correctly | 29/29 |
 | Retrieval hit@5 / MRR (25 labelled questions) | 100% / 0.94 |
 | Guardrail decisions | 8/8 |
-| Tests | 42 passing |
+| Tests | 48 passing |
+| Business value (illustrative) | Dallas→Atlanta: $304K net / yr, 1,144% ROI, 29-day payback; 8 lanes: ~$7.7M / yr balanced, ~$11.9M cost-first |
 
 ## Live app (Streamlit Community Cloud)
 

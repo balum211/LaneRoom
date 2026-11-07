@@ -36,7 +36,7 @@ os.environ.setdefault("LR_FEEDBACK_PATH", str(Path(tempfile.gettempdir()) / "lan
 from langchain_core.documents import Document  # noqa: E402
 
 from filingsight.evaluation import load_questions, score_retrieval  # noqa: E402
-from laneroom import config  # noqa: E402
+from laneroom import config, value  # noqa: E402
 from laneroom.agents import _COST, _SERVICE  # noqa: E402
 from laneroom.graph import LaneRoom  # noqa: E402
 from laneroom.guardrails import check_input  # noqa: E402
@@ -73,6 +73,7 @@ COMMITTEE_PROMPTS = [
     "LTL national contract: compare Old Dominion, C.H. Robinson and Armada on service and cost",
     "Dallas to Atlanta: should Edge Logistics or BlueGrace Logistics take more of the 500 weekly loads?",
     "Chicago to Los Angeles intermodal: J.B. Hunt vs First Star vs Edge Logistics",
+    "Dallas→Houston dry van: allocate 500 weekly loads",
 ]
 
 GUARD_CASES = [
@@ -122,6 +123,18 @@ def _allocation_ok(alloc: list[dict]) -> bool:
     return sum(shares) <= 100 + 1e-6 and caps_ok and conc_ok
 
 
+def _value_row(s: dict) -> dict:
+    v = value.evaluate(s.get("plan", {}), s.get("judge", {}), run_seconds=s.get("elapsed_s"))
+    if not v:
+        return {}
+    return {"lane": v["lane"], "annual_loads": v["annual_loads"], "net_savings": round(v["net_savings"]),
+            "net_savings_pct": round(v["net_savings_pct"], 2), "roi_pct": round(v["roi_pct"]),
+            "payback_days": None if v["payback_days"] is None else round(v["payback_days"]),
+            "drivers": {d["key"]: round(d["value"]) for d in v["drivers"]}, "run_cost": round(v["run_cost"]),
+            "acceptance_uplift": round(v["benefits"]["acceptance_uplift"], 2),
+            "on_time_uplift": round(v["benefits"]["on_time_uplift"], 2), "hours_saved": v["benefits"]["hours_saved"]}
+
+
 def eval_committee(room: LaneRoom, prompts: list[str], mode: str) -> dict:
     runs = []
     for q in prompts:
@@ -146,6 +159,7 @@ def eval_committee(room: LaneRoom, prompts: list[str], mode: str) -> dict:
             "cites_both": any(e.startswith("S") for e in cited) and any(e.startswith("E") for e in cited),
             "cited_sources": len(cited),
             "verdict": s.get("judge", {}).get("verdict", ""),
+            "value": _value_row(s),
         })
     n = len(runs)
     return {
@@ -239,6 +253,26 @@ def write_report(res: dict) -> str:
     for run in c["runs"]:
         lines.append(f"| {run['question']} | {run['verdict']} | {run['supported_final']}/{run['claims_final']} | {run['retries']} | "
                      f"{run['research_retries']} | {run['tokens']:,} | {run['seconds']} |")
+    vals = [run for run in c["runs"] if run.get("value")]
+    if vals:
+        lines += ["", "## Business value (illustrative, synthetic scorecard data)", "",
+                  "Each award valued with `src/laneroom/value.py` and its default assumptions (docs/BUSINESS_VALUE.md). "
+                  "The award mix compares landed cost with an even split and is negative when the mandate pays for service.",
+                  "", "| Request | Loads / yr | Review time | Backhaul speed | More bidders | Award mix | Net savings / yr | ROI | Payback |",
+                  "|---|---|---|---|---|---|---|---|---|"]
+        for run in vals:
+            v, d = run["value"], run["value"]["drivers"]
+            pay = f"{v['payback_days']} days" if v["payback_days"] is not None else "n/a"
+            usd = lambda x: f"-${-x:,}" if x < 0 else f"${x:,}"  # noqa: E731
+            lines.append(f"| {run['question']} | {v['annual_loads']:,} | {usd(d['review'])} | {usd(d['backhaul'])} | "
+                         f"{usd(d['onboarding'])} | {usd(d['mix'])} | **{usd(v['net_savings'])}** ({v['net_savings_pct']:+.1f}%) | "
+                         f"{v['roi_pct']:,}% | {pay} |")
+        lanes = {}
+        for run in vals:
+            lanes.setdefault(run["value"]["lane"], run["value"])
+        tot = sum(v["net_savings"] for v in lanes.values())
+        lines += ["", f"Across the {len(lanes)} distinct lanes above (first run per lane): **${tot:,}** net savings a year, "
+                  f"{sum(v['hours_saved'] for v in lanes.values()):,.0f} procurement and legal hours saved a year."]
     lines += ["", "## Mandate sensitivity (Peak season surge lane)", "", "| Mandate | Allocation |", "|---|---|"]
     for mandate, alloc in m["allocations"].items():
         lines.append(f"| {mandate} | " + " · ".join(f"{k} {v:.0f}%" for k, v in sorted(alloc.items(), key=lambda kv: -kv[1])) + " |")

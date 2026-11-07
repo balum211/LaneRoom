@@ -78,8 +78,16 @@ along every scorecard lane. After a run, a route card draws the awarded lane on 
 coloured route per carrier along the real highway (OpenStreetMap geometry from OSRM, committed in
 `data/routes/road_geometry.json` by `scripts/make_routes.py`, so nothing is fetched at runtime) and its trucks driving it,
 whose width and truck count follow its share, next to loads per week. A "Network map" tab shows the same arcs on
-real geography (pydeck on a CARTO basemap), and under the route card a Google Maps iframe shows the actual
+the same street map with every scorecard lane (dashed grey) around the awarded one, and under the route card a Google Maps iframe shows the actual
 driving route (the official Maps Embed API when `GOOGLE_MAPS_API_KEY` is set, Google's keyless embed otherwise;
 network lanes show a representative trunk route through their hubs). Carriers appear as original monogram badges with a mode icon, not their
 real logos. Carrier colours use a categorical palette validated for colour-blind separation and contrast on the
 dark surfaces (`src/laneroom/maps.py`, `src/laneroom/ui.py`).
+
+**Business value.** `src/laneroom/value.py` turns each award into net savings, ROI and payback. Four drivers: review
+time saved (manual 10-K and scorecard review vs a cited memo plus a short human review), backhaul and spot tenders
+won by deciding in minutes, rate pressure from keeping more carriers bidding, and the award mix, which compares each
+carrier's landed cost (contract rate, spot fallback on rejected tenders, claims, late loads) with an even split and is
+negative when the mandate buys service. Carriers priced in a different unit (an LTL carrier on a truckload lane) are
+left out of the mix. The UI shows a value strip under the verdict and a Business value tab with editable assumptions;
+the eval values every committee run (docs/BUSINESS_VALUE.md).

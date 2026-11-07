@@ -25,6 +25,18 @@ a few 100-page filings and a gut call. Plain chatbots fall short in three ways:
 | Logistics / operations manager | Protect service in peak season | The Resilience case, Q4 acceptance and backup capacity |
 | Finance or category lead | Understand the cost trade-off | The Cost case, rate per mile and carrier financial health |
 
+## Business value
+
+| Pain today | What LaneRoom changes |
+|---|---|
+| Procurement and legal spend weeks to a month or two reviewing carriers' 10-Ks and scorecards | A cited memo in about a minute; a person reviews and approves (about 462 hours saved a year per lane) |
+| Manual errors and bias toward an incumbent carrier | Every claim cited and verified against its source; the same allocation rules for every carrier; a human approves |
+| Adding a carrier is rigid and slow, so fewer carriers compete | A new carrier is one more document, compared the same day; more bidders keep rates competitive |
+| Backhaul and spot tenders expire in minutes to hours | Decisions in minutes win discounted capacity a slow process misses |
+| Single-carrier dependence and no audit trail | Capped shares with backups; memo, trace and decision log for every award |
+
+Illustrative (synthetic scorecard, editable assumptions): Dallas→Atlanta, 500 loads a week, saves about **$304K net a year** (1,144% ROI, 29-day payback); across eight lanes about **$7.7M a year** with a balanced mandate and **$11.9M** cost-first, 0.5% to 3.5% of landed freight cost. The award-mix driver is shown honestly and turns negative when the shipper's mandate pays a premium for service. Method: docs/BUSINESS_VALUE.md.
+
 ## Solution: why it is agentic, not just RAG
 
 1. **Planning.** A Planner detects the lane, the providers and the load count, and splits the request into capacity,
@@ -50,8 +62,8 @@ See [ARCHITECTURE.md](ARCHITECTURE.md) for the graph, the agent table and the al
 | Retrieval | Reused from our Week 2 project FilingSight (via DealRoom): semantic chunks, Chroma (MiniLM ONNX) + BM25, Reciprocal Rank Fusion, local reranker, provider filters |
 | Data | J.B. Hunt, C.H. Robinson and Old Dominion FY2025 Form 10-K (SEC EDGAR) + **synthetic** profiles for four private providers (Armada, Edge Logistics, First Star, BlueGrace Logistics), 1,033 chunks with provider, page and Item metadata; a **synthetic** 152-row lane scorecard (8 lanes) |
 | Tools | MCP server (`laneroom-carriers`): `search_filings`, `get_page`, `list_companies`, `lane_scorecard`, `key_metrics`, `compute_change` |
-| UI | Streamlit 3D glass theme with a freight-orange accent: animated US route map with moving trucks, per-lane route card, Google Maps driving route, pydeck arc map, carrier badges and roster, live agent timeline, allocation bar, debate view with verification badges, scorecard and financial cards, memo, evidence viewer, approve / revise / follow-up |
-| Quality | pytest suite (42 tests), evaluation script, GitHub Actions CI |
+| UI | Streamlit 3D glass theme with a freight-orange accent: animated US route map with moving trucks, per-lane route card, Google Maps driving route, street-map network view, business value (net savings, ROI, payback), carrier badges and roster, live agent timeline, allocation bar, debate view with verification badges, scorecard and financial cards, memo, evidence viewer, approve / revise / follow-up |
+| Quality | pytest suite (48 tests), evaluation script, GitHub Actions CI |
 
 ## Guardrails
 

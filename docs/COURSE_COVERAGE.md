@@ -54,7 +54,7 @@ during the demo. **✅ shown** = visible in the app or eval. **◐ partial** = p
 | Cost and latency as eval dimensions | ✅ | Median and p95 seconds, tokens and estimated cost per memo in the eval report |
 | Tracing and observability | ✅ | Every run's agent trace is written to `data/traces/runs.jsonl`. Set `LANGSMITH_TRACING=true` to send full traces to LangSmith (the sidebar shows when it is on) |
 | Turning logs into eval cases, feedback loop | ✅ | Every human review decision is logged to `data/eval/feedback.jsonl`. `python eval/run_eval.py --feedback` replays those requests as regression cases |
-| Regression testing and CI | ✅ | 42 pytest tests and the eval run offline with no API key, so they are reproducible and CI ready |
+| Regression testing and CI | ✅ | 48 pytest tests and the eval run offline with no API key, so they are reproducible and CI ready |
 | Baseline comparison | ✅ | Plain RAG vs the LaneRoom committee on the same prompts |
 | Alerts and dashboards | ◐ | Thresholds sit in the eval report targets. No live alerting, because the demo is a local app |
 
