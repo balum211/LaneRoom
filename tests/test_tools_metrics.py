@@ -100,7 +100,9 @@ def test_lane_map_html_has_one_route_per_awarded_carrier():
              {"company": "First Star", "share": 0, "loads": 0}]
     routes = maps.lane_routes_geo("DAL-HOU", alloc)
     assert [r["carrier"] for r in routes] == ["J.B. Hunt", "Armada"]
-    assert routes[0]["pts"][0] == [maps.CITIES["Dallas"][1], maps.CITIES["Dallas"][0]]
+    start = routes[0]["pts"][0]  # real road path from the committed OSRM geometry, starting in Dallas
+    assert routes[0]["road"] and abs(start[0] - 32.78) < 0.2 and abs(start[1] + 96.8) < 0.2
+    assert maps.lane_distance("DAL-HOU").startswith("239 road miles")
     html = maps.lane_map_html("DAL-HOU", alloc)
     data = json.loads(html.split("const D = ")[1].split(";\n")[0])
     assert {c["name"] for c in data["cities"]} == {"Dallas", "Houston"} and "leaflet" in html

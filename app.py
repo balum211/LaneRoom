@@ -177,7 +177,8 @@ def google_route(plan: dict) -> None:
     stops = " → ".join(maps.google_stops(lane_id))
     st.markdown(ui.section("map-pin", f"Google Maps · {stops}"), unsafe_allow_html=True)
     components.iframe(src, height=420)
-    st.caption(f"Driving route from Google Maps{' (representative trunk route through the network hubs)' if lane_id in maps.GOOGLE_ROUTES else ''}. "
+    st.caption(f"Driving route from Google Maps{' (representative trunk route through the network hubs)' if lane_id in maps.GOOGLE_ROUTES else ''}; Google's embed cannot carry "
+               f"LaneRoom's trucks, so the moving trucks are on the route map above. "
                f"[Open in Google Maps]({maps.google_maps_url(lane_id, embed=False)})")
 
 

@@ -208,6 +208,9 @@ def lane_svg(lane_id: str, allocation: list[dict], uid: str = "lane") -> str:
 def lane_distance(lane_id: str) -> str:
     routes = LANE_ROUTES.get(lane_id, [])
     if len(routes) == 1:
+        road = road_leg(*routes[0])
+        if road:
+            return f"{road['miles']:,} road miles · ~{road['hours']:g} h drive"
         return f"≈ {miles(*routes[0]):,} road miles (est.)"
     return f"{len(routes)} network legs · {len({c for r in routes for c in r})} metros"
 
@@ -267,30 +270,45 @@ def _bezier(a: tuple, b: tuple, bend: float, offset: float, n: int = 48) -> list
     return pts
 
 
+@lru_cache(maxsize=1)
+def road_geometry() -> dict:
+    """Real road paths per leg ("A|B" -> {"miles", "hours", "pts": [[lat, lon], ...]}), from scripts/make_routes.py."""
+    import json
+    from pathlib import Path
+
+    path = Path(__file__).resolve().parents[2] / "data" / "routes" / "road_geometry.json"
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+
+
+def road_leg(a: str, b: str) -> dict | None:
+    return road_geometry().get(f"{a}|{b}")
+
+
 def lane_routes_geo(lane_id: str, allocation: list[dict]) -> list[dict]:
-    """Per-carrier route lines in lat/lon for a real map: one bowed line per awarded carrier on point lanes,
-    one line per leg (coloured by a lead carrier) on network lanes."""
+    """Per-carrier routes in lat/lon for the real map. Each follows the actual road (OSRM / OpenStreetMap geometry)
+    when it is on file, else a gentle curve; the browser offsets parallel carriers by a few pixels."""
     routes = LANE_ROUTES.get(lane_id, [])
     awarded = [r for r in allocation if r.get("share", 0) > 0]
     out = []
     for ri, (a, b) in enumerate(routes):
-        pa, pb = CITIES[a], CITIES[b]
-        if len(routes) > 1:
+        road = road_leg(a, b)
+        pts = road["pts"] if road else _bezier(CITIES[a], CITIES[b], 0.10, 0)
+        if len(routes) > 1:  # network lanes: one leg per line, coloured by a lead carrier
             r = awarded[ri % len(awarded)] if awarded else {"company": "", "share": 0}
             out.append({"carrier": r["company"], "share": r.get("share", 0), "loads": r.get("loads"),
-                        "color": PROVIDERS.get(r["company"], FALLBACK)["color"], "leg": f"{a} → {b}",
-                        "pts": _bezier(pa, pb, 0.12, 0), "weight": 4, "trucks": 1,
-                        "kind": "truck"})
+                        "color": PROVIDERS.get(r["company"], FALLBACK)["color"], "leg": f"{a} → {b}", "pts": pts,
+                        "weight": 4, "trucks": 1, "kind": "truck", "slot": 0, "road": bool(road)})
             continue
         n = len(awarded)
-        dist = math.hypot(pb[0] - pa[0], pb[1] - pa[1])
         for i, r in enumerate(awarded):
-            off = (i - (n - 1) / 2) * dist * 0.07
             out.append({"carrier": r["company"], "share": r["share"], "loads": r.get("loads"),
-                        "color": PROVIDERS.get(r["company"], FALLBACK)["color"], "leg": f"{a} → {b}",
-                        "pts": _bezier(pa, pb, 0.10, off), "weight": round(2.5 + r["share"] / 7, 1),
-                        "trucks": max(1, round(r["share"] / 20)),
-                        "kind": "train" if lane_id == "CHI-LAX" and r["company"] == "J.B. Hunt" else "truck"})
+                        "color": PROVIDERS.get(r["company"], FALLBACK)["color"], "leg": f"{a} → {b}", "pts": pts,
+                        "weight": round(3 + r["share"] / 10, 1), "trucks": max(1, round(r["share"] / 15)),
+                        "kind": "train" if lane_id == "CHI-LAX" and r["company"] == "J.B. Hunt" else "truck",
+                        "slot": i - (n - 1) / 2, "road": bool(road)})
     return out
 
 
@@ -298,48 +316,78 @@ LEAFLET_HTML = """<!doctype html><html><head><meta charset="utf-8">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
-html,body{margin:0;height:100%;background:#04131B;font-family:system-ui,Segoe UI,sans-serif}
-#m{position:absolute;inset:0;border-radius:14px;overflow:hidden;background:#04131B}
-.leaflet-container{background:#04131B}
-.city{color:#eaf6ff;font:600 12px system-ui;text-shadow:0 1px 3px #000,0 0 6px #000;white-space:nowrap}
+html,body{margin:0;height:100%;background:#e8eef1;font-family:system-ui,Segoe UI,sans-serif}
+#m{position:absolute;inset:0;border-radius:14px;overflow:hidden}
+.city{color:#0b2633;font:700 12px system-ui;text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 5px #fff;white-space:nowrap}
 .leaflet-tooltip.lr{background:#0b2633;color:#eaf6ff;border:1px solid #1d4252;border-radius:8px;font:12px system-ui}
 .leaflet-tooltip.lr:before{display:none}
-.veh svg{filter:drop-shadow(0 0 3px rgba(0,0,0,.9))}
+.veh svg{filter:drop-shadow(0 1px 2px rgba(0,0,0,.6))}
+.legend{background:rgba(255,255,255,.92);border-radius:8px;padding:6px 8px;font:11px system-ui;color:#0b2633;
+  box-shadow:0 1px 4px rgba(0,0,0,.3)}
+.legend i{display:inline-block;width:14px;height:4px;border-radius:2px;margin-right:5px;vertical-align:middle}
 </style></head><body><div id="m"></div><script>
 const D = __DATA__;
-const map = L.map('m', {zoomControl: true, scrollWheelZoom: false, attributionControl: true});
-const ESRI = 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/';
-L.tileLayer(ESRI + 'World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {maxZoom: 16,
-  attribution: 'Basemap &copy; Esri, HERE, Garmin, &copy; OpenStreetMap contributors'}).addTo(map);
-const all = [];
-const TRUCK = c => `<svg width="26" height="14" viewBox="-14 -7 28 14"><rect x="-13" y="-5" width="17" height="10" rx="1.5" fill="${c}" stroke="#04131B" stroke-width="1"/><path d="M5 -3 h4.5 l3.5 3.5 v4.5 h-8z" fill="${c}" stroke="#04131B" stroke-width="1"/><circle cx="-8" cy="5.5" r="2" fill="#04131B"/><circle cx="8" cy="5.5" r="2" fill="#04131B"/></svg>`;
-const TRAIN = c => `<svg width="30" height="14" viewBox="-16 -7 32 14"><rect x="-15" y="-5" width="13" height="9" rx="1.5" fill="${c}"/><rect x="0" y="-5" width="15" height="9" rx="2.5" fill="${c}"/><circle cx="-11" cy="5.5" r="1.8" fill="#04131B"/><circle cx="-5" cy="5.5" r="1.8" fill="#04131B"/><circle cx="4" cy="5.5" r="1.8" fill="#04131B"/><circle cx="11" cy="5.5" r="1.8" fill="#04131B"/></svg>`;
-const movers = [];
+const map = L.map('m', {zoomControl: true, scrollWheelZoom: false});
+L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
+  {maxZoom: 18, attribution: 'Tiles &copy; Esri, HERE, Garmin, USGS &middot; Roads &copy; OpenStreetMap (OSRM)'}).addTo(map);
+const TRUCK = c => `<svg width="34" height="18" viewBox="-14 -7 28 14"><rect x="-13" y="-5" width="17" height="10" rx="1.5" fill="${c}" stroke="#fff" stroke-width="1.2"/><path d="M5 -3 h4.5 l3.5 3.5 v4.5 h-8z" fill="${c}" stroke="#fff" stroke-width="1.2"/><circle cx="-8" cy="5.5" r="2.2" fill="#111"/><circle cx="8" cy="5.5" r="2.2" fill="#111"/></svg>`;
+const TRAIN = c => `<svg width="38" height="18" viewBox="-16 -7 32 14"><rect x="-15" y="-5" width="13" height="9" rx="1.5" fill="${c}" stroke="#fff"/><rect x="0" y="-5" width="15" height="9" rx="2.5" fill="${c}" stroke="#fff"/><circle cx="-11" cy="5.5" r="1.8" fill="#111"/><circle cx="-5" cy="5.5" r="1.8" fill="#111"/><circle cx="4" cy="5.5" r="1.8" fill="#111"/><circle cx="11" cy="5.5" r="1.8" fill="#111"/></svg>`;
+const GAP = 7;  // px between parallel carrier routes
+// Shift a lat/lon path sideways by px screen pixels at the current zoom, so parallel carriers stay visible.
+function shifted(pts, px) {
+  if (!px) return pts;
+  const P = pts.map(p => map.latLngToLayerPoint(p));
+  return P.map((p, i) => {
+    const a = P[Math.max(i - 1, 0)], b = P[Math.min(i + 1, P.length - 1)];
+    const dx = b.x - a.x, dy = b.y - a.y, len = Math.hypot(dx, dy) || 1;
+    return map.layerPointToLatLng(L.point(p.x - dy / len * px, p.y + dx / len * px));
+  });
+}
+const lines = [], movers = [], all = [];
 D.routes.forEach((r, i) => {
-  L.polyline(r.pts, {color: '#04131B', weight: r.weight + 3, opacity: .85}).addTo(map);
-  const line = L.polyline(r.pts, {color: r.color, weight: r.weight, opacity: .95, lineCap: 'round'}).addTo(map);
-  const loads = r.loads != null ? ` · ${r.loads.toLocaleString()} loads/wk` : '';
-  line.bindTooltip(`<b>${r.carrier}</b> · ${Math.round(r.share)}%${loads}<br>${r.leg}`, {sticky: true, className: 'lr'});
   r.pts.forEach(p => all.push(p));
+  const casing = L.polyline(r.pts, {color: '#ffffff', weight: r.weight + 3, opacity: .9}).addTo(map);
+  const line = L.polyline(r.pts, {color: r.color, weight: r.weight, opacity: .95, lineCap: 'round', lineJoin: 'round'}).addTo(map);
+  const loads = r.loads != null ? ` &middot; ${r.loads.toLocaleString()} loads/wk` : '';
+  line.bindTooltip(`<b>${r.carrier}</b> &middot; ${Math.round(r.share)}%${loads}<br>${r.leg}`, {sticky: true, className: 'lr'});
+  lines.push({r, casing, line});
   for (let t = 0; t < r.trucks; t++) {
-    const icon = L.divIcon({className: 'veh', html: (r.kind === 'train' ? TRAIN : TRUCK)(r.color), iconSize: [26, 14], iconAnchor: [13, 7]});
-    movers.push({m: L.marker(r.pts[0], {icon, interactive: false}).addTo(map), pts: r.pts, phase: t / r.trucks + i * 0.11,
-                 speed: 1 / (D.routes.length > 1 ? 7000 : 9000)});
+    const icon = L.divIcon({className: 'veh', html: (r.kind === 'train' ? TRAIN : TRUCK)(r.color), iconSize: [34, 18], iconAnchor: [17, 9]});
+    movers.push({r, m: L.marker(r.pts[0], {icon, interactive: false, zIndexOffset: 500}).addTo(map),
+                 phase: t / r.trucks + i * 0.137, path: r.pts});
   }
 });
 D.cities.forEach(c => {
-  L.circleMarker([c.lat, c.lon], {radius: c.hub ? 7 : 5, color: '#04131B', weight: 2, fillColor: '#FF8A3D', fillOpacity: 1}).addTo(map);
-  L.marker([c.lat, c.lon], {icon: L.divIcon({className: 'city', html: c.name, iconSize: null, iconAnchor: c.below ? [c.name.length * 3.5, -8] : c.left ? [c.name.length * 7 + 10, 8] : [-10, 8]}),
+  L.circleMarker([c.lat, c.lon], {radius: c.hub ? 8 : 6, color: '#ffffff', weight: 2.5, fillColor: '#FF8A3D', fillOpacity: 1}).addTo(map);
+  L.marker([c.lat, c.lon], {icon: L.divIcon({className: 'city', html: c.name, iconSize: null,
+            iconAnchor: c.below ? [c.name.length * 3.5, -10] : c.left ? [c.name.length * 7 + 12, 8] : [-12, 8]}),
             interactive: false}).addTo(map);
 });
-map.fitBounds(all, {padding: [34, 34]});
-function at(pts, f) {
-  const x = f * (pts.length - 1), i = Math.min(Math.floor(x), pts.length - 2), u = x - i;
-  return [pts[i][0] + (pts[i + 1][0] - pts[i][0]) * u, pts[i][1] + (pts[i + 1][1] - pts[i][1]) * u];
+const legend = L.control({position: 'bottomleft'});
+legend.onAdd = () => { const d = L.DomUtil.create('div', 'legend');
+  const seen = new Set(); d.innerHTML = D.routes.filter(r => !seen.has(r.carrier) && seen.add(r.carrier))
+    .map(r => `<div><i style="background:${r.color}"></i>${r.carrier} ${Math.round(r.share)}%</div>`).join('');
+  return d; };
+legend.addTo(map);
+map.fitBounds(all, {padding: [30, 30]});
+function layout() {
+  lines.forEach(({r, casing, line}) => { const p = shifted(r.pts, r.slot * GAP); casing.setLatLngs(p); line.setLatLngs(p); });
+  movers.forEach(v => { v.path = shifted(v.r.pts, v.r.slot * GAP).map(p => [p.lat ?? p[0], p.lng ?? p[1]]); });
 }
+map.on('zoomend', layout); layout();
+// Trucks move at a steady map speed: walk the path by cumulative length, not by point index.
+function cum(path) { const c = [0]; for (let i = 1; i < path.length; i++) c.push(c[i - 1] + Math.hypot(path[i][0] - path[i - 1][0], path[i][1] - path[i - 1][1])); return c; }
+function at(path, f) {
+  const c = v_c.get(path) || (v_c.set(path, cum(path)), v_c.get(path)), d = f * c[c.length - 1];
+  let i = 1; while (i < c.length - 1 && c[i] < d) i++;
+  const u = (d - c[i - 1]) / ((c[i] - c[i - 1]) || 1);
+  return [path[i - 1][0] + (path[i][0] - path[i - 1][0]) * u, path[i - 1][1] + (path[i][1] - path[i - 1][1]) * u];
+}
+const v_c = new WeakMap();
 const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const PERIOD = D.routes.length > 1 ? 9000 : 14000;
 function tick(now) {
-  movers.forEach(v => v.m.setLatLng(at(v.pts, reduce ? (v.phase % 1) : ((now * v.speed + v.phase) % 1))));
+  movers.forEach(v => v.m.setLatLng(at(v.path, reduce ? (v.phase % 1) : ((now / PERIOD + v.phase) % 1))));
   if (!reduce) requestAnimationFrame(tick);
 }
 requestAnimationFrame(tick);
@@ -347,7 +395,8 @@ requestAnimationFrame(tick);
 
 
 def lane_map_html(lane_id: str, allocation: list[dict]) -> str:
-    """Self-contained Leaflet page: the lane on a real (Esri dark gray, keyless) basemap with one coloured route per carrier."""
+    """Self-contained Leaflet page: the lane on a street map (Esri World Street Map, keyless), one coloured route per
+    carrier along the real road, and that carrier's trucks driving it."""
     import json
 
     routes = LANE_ROUTES.get(lane_id, [])
@@ -355,6 +404,5 @@ def lane_map_html(lane_id: str, allocation: list[dict]) -> str:
     hubs = set(LANE_HUBS.get(lane_id, [])) | ({routes[0][0], routes[0][1]} if len(routes) == 1 else set())
     data = {"routes": lane_routes_geo(lane_id, allocation),
             "cities": [{"name": c, "lon": CITIES[c][0], "lat": CITIES[c][1], "hub": c in hubs, "left": c in _LEFT_LABELS,
-                        "below": c == "Phoenix" and "Los Angeles" in names}
-                       for c in names]}
+                        "below": c == "Phoenix" and "Los Angeles" in names} for c in names]}
     return LEAFLET_HTML.replace("__DATA__", json.dumps(data))

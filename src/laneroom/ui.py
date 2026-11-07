@@ -563,8 +563,8 @@ def lane_card(judge: dict, plan: dict, side_only: bool = False) -> str:
     head = (f'<div class="ttl">{icon("map-trifold")} Route map</div><h3>{escape(plan.get("lane", ""))}</h3>'
             f'<div class="sub">{escape(plan.get("mode", ""))} · {escape(maps.lane_distance(lane_id))}{loads}</div>')
     if side_only:
-        note = ("Each carrier&#39;s route is drawn on a real map; line width and truck count follow its share. "
-                "Hover a route for its loads. Mileage is a great-circle estimate; the Google Maps driving route is below.")
+        note = ("Each carrier&#39;s trucks drive the real highway route (OpenStreetMap road data); line width and truck "
+                "count follow its share. Hover a route for its loads.")
         return f'<div class="lanecard side">{head}{"".join(rows)}<div class="note">{note}</div></div>'
     note = ("Schematic routes. Line width and truck count follow each carrier&#39;s share; mileage is a "
             "great-circle estimate.")
