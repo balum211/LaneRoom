@@ -9,7 +9,7 @@ Form: https://forms.gle/rYC7PCaDg1xj9ZVu8 · Deadline: **Thursday Nov 6, 2026, 1
 | Completed breakout activity document | `Team24_LaneRoom_Proposal.pdf` (or the .docx) uploaded to Google Drive with "Anyone with the link can view", or a link to [docs/PROPOSAL.md](PROPOSAL.md) |
 | GitHub link | https://github.com/balum211/LaneRoom |
 | Live app | https://team24-logisticslanedealroom.streamlit.app |
-| Video demo (Drive link) | Your Google Drive link, sharing set to "Anyone with the link can view" (script: [DEMO_SCRIPT.md](DEMO_SCRIPT.md)) |
+| Video demo | https://www.loom.com/share/230491153e4546378afab6933ceb111a (Loom; script: [DEMO_SCRIPT.md](DEMO_SCRIPT.md)) |
 
 **One-line description (if the form asks):** LaneRoom is a multi-agent freight tender committee: a Planner,
 Researcher, Quant, Cost and Resilience advocates, a Verifier, a Judge and a Writer read carriers' SEC 10-Ks and a
@@ -48,7 +48,7 @@ rate per mile, claims %) is synthetic demo data for all carriers.
 - [x] README with screenshots, architecture, proposal, demo script, course map
 - [ ] CI badge green on the latest commit
 - [ ] Live app opened once and the Dallas→Atlanta scenario run end to end
-- [ ] Video recorded (2 to 3 minutes) and uploaded to Drive with link sharing on
+- [x] Video recorded and shared: https://www.loom.com/share/230491153e4546378afab6933ceb111a
 - [ ] Proposal document uploaded to Drive with link access
 - [x] Team members confirmed: Bala Mallampati, Ravindranath Konduru (Ravi), Deepthi Avula and Neha Madhao Pande
 - [ ] Form submitted before 11:59 pm PT (submit without the video if it is not ready; it can be shared later)

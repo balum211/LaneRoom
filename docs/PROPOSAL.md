@@ -2,6 +2,7 @@
 
 **Team 24 · The Gen Academy, Mastering Agentic AI · November 2026**
 Repo: https://github.com/balum211/LaneRoom · Sibling project: https://github.com/balum211/DealRoom
+Live app: https://team24-logisticslanedealroom.streamlit.app · Video demo: https://www.loom.com/share/230491153e4546378afab6933ceb111a
 
 LaneRoom is a team of AI agents that runs a shipper's freight tender committee in seconds. It reads carriers' SEC
 filings and the shipper's own lane scorecard, has a **Cost** advocate and a **Resilience** advocate argue how to

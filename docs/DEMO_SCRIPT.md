@@ -1,5 +1,7 @@
 # Demo video script (about 3 minutes)
 
+**Recorded demo:** https://www.loom.com/share/230491153e4546378afab6933ceb111a
+
 **Setup before recording**
 1. `run.bat` (or `streamlit run app.py`), wait for the page to load.
 2. Run the first scenario once so the index is warm, then refresh.
