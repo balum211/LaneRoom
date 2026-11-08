@@ -41,15 +41,28 @@ METRIC_LABELS = {"acceptance_pct": "Tender acceptance %", "on_time_pct": "On-tim
                  "claims_pct": "Claims %"}
 
 
+@st.cache_resource(show_spinner=False)
+def warm_index():
+    """Load the embedding model and carrier index in a background thread, so the page renders at once."""
+    import threading
+
+    from laneroom.tools import get_index
+
+    t = threading.Thread(target=get_index, name="warm-index", daemon=True)
+    t.start()
+    return t
+
+
 @st.cache_resource(show_spinner="Loading the carrier knowledge base…")
 def get_room() -> LaneRoom:
     from laneroom.tools import get_index
 
+    warm_index().join()
     get_index()
     return LaneRoom()
 
 
-room = get_room()
+warm_index()
 store = MemoryStore()
 ss = st.session_state
 ss.setdefault("thread", None)
@@ -196,6 +209,7 @@ with tab_room:
     with b_col:
         go = st.button("Convene committee", type="primary", width="stretch", icon=":material/gavel:")
 
+    room = get_room() if (go or ss.thread) else None
     if go:
         ss.thread = room.new_thread()
         ss.trace = []
